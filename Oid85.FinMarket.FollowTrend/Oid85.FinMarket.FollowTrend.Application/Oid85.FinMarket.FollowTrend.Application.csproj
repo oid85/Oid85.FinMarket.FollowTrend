@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+	  <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+	  <PackageReference Include="Microsoft.Extensions.Options" />
+	  <PackageReference Include="NLog" />
+	  <PackageReference Include="Skender.Stock.Indicators" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Oid85.FinMarket.FollowTrend.Common\Oid85.FinMarket.FollowTrend.Common.csproj" />
+    <ProjectReference Include="..\Oid85.FinMarket.FollowTrend.Core\Oid85.FinMarket.FollowTrend.Core.csproj" />
+  </ItemGroup>
+
+</Project>

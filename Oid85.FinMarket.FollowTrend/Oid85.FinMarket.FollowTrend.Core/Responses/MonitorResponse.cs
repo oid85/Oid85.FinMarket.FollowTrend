@@ -1,0 +1,31 @@
+﻿using Oid85.FinMarket.FollowTrend.Core.Models;
+
+namespace Oid85.FinMarket.FollowTrend.Core.Responses
+{
+    public class MonitorResponse
+    {
+        public List<string> Description { get; set; } = [];
+        public List<DiagramSeries> BacktestSeries { get; set; } = [];
+        public List<DiagramSeries> ShortBacktestSeries { get; set; } = [];
+        public List<DiagramSeries> PriceDynamicSeries { get; set; } = [];
+        public List<DiagramSeries> PriceSeries { get; set; } = [];
+        public List<List<DiagramSeries>> PriceWithStopSeries { get; set; } = [];
+        public List<CurrentPosition> CurrentPositions { get; set; } = [];
+        public List<FollowTrendMessage> Messages { get; set; } = [];
+        public List<TickerStatistic> TickerStatistic { get; set; } = [];
+        public double Yield { get; set; }
+        public double Yield2021 { get; set; }
+        public double Yield2022 { get; set; }
+        public double Yield2023 { get; set; }
+        public double Yield2024 { get; set; }
+        public double Yield2025 { get; set; }
+        public double Yield2026 { get; set; }
+        public double YieldYear { get; set; }
+        public double YieldQuarter { get; set; }
+        public double YieldMonth { get; set; }
+        public double YieldWeek { get; set; }
+        public double MaxDrawdownPercent { get; set; }
+        public double CurrentDrawdownPercent { get; set; }
+        public double TotalSumLife { get; set; }
+    }
+}

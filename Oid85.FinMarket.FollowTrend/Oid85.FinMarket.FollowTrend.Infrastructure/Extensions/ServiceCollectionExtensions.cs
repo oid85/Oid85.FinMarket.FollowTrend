@@ -1,0 +1,80 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Oid85.FinMarket.FollowTrend.Application.Interfaces.ApiClients;
+using Oid85.FinMarket.FollowTrend.Application.Interfaces.Repositories;
+using Oid85.FinMarket.FollowTrend.Common.KnownConstants;
+using Oid85.FinMarket.FollowTrend.Infrastructure.ApiClients;
+using Oid85.FinMarket.FollowTrend.Infrastructure.Database;
+using Oid85.FinMarket.FollowTrend.Infrastructure.Database.Repositories;
+
+namespace Oid85.FinMarket.FollowTrend.Infrastructure.Extensions;
+
+public static class ServiceCollectionExtensions
+{
+    public static void ConfigureInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {    
+        services.AddDbContextPool<FollowTrendContext>((serviceProvider, options) =>
+        {  
+            options.UseNpgsql(configuration.GetValue<string>(KnownSettingsKeys.PostgresFollowTrendConnectionString));
+        });
+
+        services.AddPooledDbContextFactory<FollowTrendContext>(options =>
+            options
+                .UseNpgsql(configuration.GetValue<string>(KnownSettingsKeys.PostgresFollowTrendConnectionString))
+                .EnableServiceProviderCaching(false), poolSize: 32);
+
+        services.AddScoped<IParameterRepository, ParameterRepository>();
+		services.AddScoped<IStrategyExecuteResultRepository, StrategyExecuteResultRepository>();
+    }
+
+    public static void ConfigureStorageApiClient(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.AddHttpClient(KnownHttpClients.FinMarketStorageServiceApiClient, client =>
+        {
+            string baseUrl = configuration.GetValue<string>(KnownSettingsKeys.FinMarketStorageServiceApiClientBaseAddress)!;
+            client.BaseAddress = new Uri(baseUrl);
+        });
+
+        services.AddScoped<IStorageApiClient, StorageApiClient>();
+    }
+
+    public static void ConfigureAnalyticsApiClient(
+    this IServiceCollection services,
+    IConfiguration configuration)
+    {
+        services.AddHttpClient(KnownHttpClients.FinMarketAnalyticsServiceApiClient, client =>
+        {
+            string baseUrl = configuration.GetValue<string>(KnownSettingsKeys.FinMarketAnalyticsServiceApiClientBaseAddress)!;
+            client.BaseAddress = new Uri(baseUrl);
+        });
+
+        services.AddScoped<IAnalyticsApiClient, AnalyticsApiClient>();
+    }
+
+    public static void ConfigureTraderFinamApiClient(
+    this IServiceCollection services,
+    IConfiguration configuration)
+    {
+        services.AddHttpClient(KnownHttpClients.FinMarketTraderFinamServiceApiClient, client =>
+        {
+            string baseUrl = configuration.GetValue<string>(KnownSettingsKeys.FinMarketTraderFinamServiceApiClientBaseAddress)!;
+            client.BaseAddress = new Uri(baseUrl);
+        });
+
+        services.AddScoped<ITraderFinamApiClient, TraderFinamApiClient>();
+    }
+
+    public static async Task ApplyMigrations(this IHost host)
+    {
+        var scopeFactory = host.Services.GetRequiredService<IServiceScopeFactory>();
+        await using var scope = scopeFactory.CreateAsyncScope();
+        await using var context = scope.ServiceProvider.GetRequiredService<FollowTrendContext>();
+        await context.Database.MigrateAsync();
+    }
+}
