@@ -1,15 +1,33 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Oid85.FinMarket.FollowTrend.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class _12092026_1 : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "public");
+
+            migrationBuilder.CreateTable(
+                name: "ParameterEntities",
+                schema: "public",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Value = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ParameterEntities", x => x.id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "StrategyExecuteResultEntities",
                 schema: "public",
@@ -18,13 +36,11 @@ namespace Oid85.FinMarket.FollowTrend.Infrastructure.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     StartDate = table.Column<DateOnly>(type: "date", nullable: false),
                     EndDate = table.Column<DateOnly>(type: "date", nullable: false),
-                    Ticker = table.Column<string>(type: "text", nullable: false),
-                    StrategyDescription = table.Column<string>(type: "text", nullable: false),
+                    Tickers = table.Column<string>(type: "text", nullable: false),
                     StrategyName = table.Column<string>(type: "text", nullable: false),
                     StrategyParams = table.Column<string>(type: "text", nullable: false),
                     RecoveryFactor = table.Column<double>(type: "double precision", nullable: false),
                     NetProfit = table.Column<double>(type: "double precision", nullable: false),
-                    MaxDrawdown = table.Column<double>(type: "double precision", nullable: false),
                     MaxDrawdownPercent = table.Column<double>(type: "double precision", nullable: false),
                     StartMoney = table.Column<double>(type: "double precision", nullable: false),
                     EndMoney = table.Column<double>(type: "double precision", nullable: false),
@@ -42,6 +58,10 @@ namespace Oid85.FinMarket.FollowTrend.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "ParameterEntities",
+                schema: "public");
+
             migrationBuilder.DropTable(
                 name: "StrategyExecuteResultEntities",
                 schema: "public");

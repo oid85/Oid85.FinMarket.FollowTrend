@@ -12,8 +12,8 @@ using Oid85.FinMarket.FollowTrend.Infrastructure.Database;
 namespace Oid85.FinMarket.FollowTrend.Infrastructure.Migrations
 {
     [DbContext(typeof(FollowTrendContext))]
-    [Migration("20260912072933_12092026_1")]
-    partial class _12092026_1
+    [Migration("20261011123717_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -66,9 +66,6 @@ namespace Oid85.FinMarket.FollowTrend.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<double>("MaxDrawdown")
-                        .HasColumnType("double precision");
-
                     b.Property<double>("MaxDrawdownPercent")
                         .HasColumnType("double precision");
 
@@ -88,10 +85,6 @@ namespace Oid85.FinMarket.FollowTrend.Infrastructure.Migrations
                     b.Property<double>("StartMoney")
                         .HasColumnType("double precision");
 
-                    b.Property<string>("StrategyDescription")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("StrategyName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -100,7 +93,7 @@ namespace Oid85.FinMarket.FollowTrend.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Ticker")
+                    b.Property<string>("Tickers")
                         .IsRequired()
                         .HasColumnType("text");
 
