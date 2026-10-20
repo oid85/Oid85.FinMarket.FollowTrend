@@ -31,8 +31,7 @@ public static class ApplicationMapper
             YieldMonth = DiagramSeriesHelper.GetPercentageYield(strategy.EquitySeries, 30),
             YieldWeek = DiagramSeriesHelper.GetPercentageYield(strategy.EquitySeries, 7),
             MaxDrawdownPercent = strategy.MaxDrawdownPercent,
-            CurrentDrawdownPercent = strategy.GetCurrentDrawdown(),
-            TickerStatistic = strategy.GetTickerStatistics()
+            CurrentDrawdownPercent = strategy.GetCurrentDrawdown()
         };
 
     public static StrategyExecuteResult ToStrategyExecuteResult(FollowTrendStrategy strategy) =>

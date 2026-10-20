@@ -163,7 +163,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Helpers
             return priceDynamicSeries;
         }
 
-        public static List<List<DiagramSeries>> GetPriceWithStopSeries(
+        public static List<List<DiagramSeries>> GetPriceWithEntryPriceSeries(
             List<string> portfolioTickers,
             Dictionary<string, List<Candle>> candleData,
             Dictionary<string, PositionData> positionData)
@@ -181,7 +181,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Helpers
             foreach (var ticker in tickers)
             {
                 var candles = candleData[ticker].Where(x => x.Date >= from && x.Date <= to).ToList();
-                double stop = positionData[ticker].StopPrice;
                 double entryPrice = positionData[ticker].EntryPrice;
 
                 series.Add([
@@ -196,19 +195,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Helpers
                         {
                             Date = x.Date,
                             Value = x.Close.RoundTo(4)
-                        })]
-                    },
-                    new DiagramSeries
-                    {
-                        Name = $" SL '{ticker}'",
-                        Color = KnownColors.Red,
-                        ColorFill = KnownColors.Red,
-                        Data = [.. candles
-                        .Select(x =>
-                        new DateValue<double?>
-                        {
-                            Date = x.Date,
-                            Value = stop.RoundTo(4)
                         })]
                     },
                     new DiagramSeries

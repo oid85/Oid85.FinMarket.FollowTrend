@@ -8,8 +8,6 @@
         public int Size { get; set; }
         public double Cost { get; set; }
         public double EntryPrice { get; set; }
-        public double StopPrice { get; set; }
-        public double CurrentStopSizePercent { get; set; }
         public double ProfitPercent { get; set; }
     }
 }

@@ -5,7 +5,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Helpers
 {
     public class FollowTrendHelper
     {
-        public static List<string> GetFollowTrendTopTickers(
+        public static List<string> GetUltimateSmootherSignalTickers(
             Dictionary<string, List<Candle>> candleData, DateOnly date, int period, int count)
         {
             if (candleData is null) return [];

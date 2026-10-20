@@ -12,7 +12,6 @@ namespace Oid85.FinMarket.FollowTrend.Core.Responses
         public List<List<DiagramSeries>> PriceWithStopSeries { get; set; } = [];
         public List<CurrentPosition> CurrentPositions { get; set; } = [];
         public List<FollowTrendMessage> Messages { get; set; } = [];
-        public List<TickerStatistic> TickerStatistic { get; set; } = [];
         public double Yield { get; set; }
         public double Yield2021 { get; set; }
         public double Yield2022 { get; set; }

@@ -7,11 +7,11 @@ using Oid85.FinMarket.FollowTrend.Core.Models;
 namespace Oid85.FinMarket.FollowTrend.Application.Services
 {
     public class DataService(
-        IStorageApiClient storageApiClient,
-        IMemoryCache memoryCache) 
+        IStorageApiClient storageApiClient) 
         : IDataService
     {
         private Dictionary<string, List<Candle>>? _candleData = null;
+        private Dictionary<string, List<DateValue<double>>>? _ultimateSmootherData = null;
         private Dictionary<string, Instrument>? _instrumentData = null;
 
         public async Task<Dictionary<string, List<Candle>>> GetCandleDataAsync(List<string> tickers)
@@ -31,6 +31,30 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
                 _candleData.Add(ticker, await GetCandlesByTickerAsync(ticker));
 
             return _candleData;
+        }
+
+        public async Task<Dictionary<string, List<DateValue<double>>>> GetUltimateSmootherDataAsync(List<string> tickers)
+        {
+            if (_ultimateSmootherData is not null)
+            {
+                foreach (var ticker in tickers)
+                    if (!_ultimateSmootherData.ContainsKey(ticker))
+                    {
+                        var candles = await GetCandlesByTickerAsync(ticker);
+                        _ultimateSmootherData.Add(ticker, GetUltimateSmootherValues(candles));
+                    }
+                
+                return _ultimateSmootherData;
+            }    
+
+            _ultimateSmootherData = [];
+
+            var candleData = await GetCandleDataAsync(tickers);
+
+            foreach (var ticker in tickers.Distinct())
+                _ultimateSmootherData.Add(ticker, GetUltimateSmootherValues(candleData[ticker]));
+
+            return _ultimateSmootherData;
         }
 
         public async Task<Dictionary<string, Instrument>> GetInstrumentDataAsync(List<string> tickers)
@@ -123,6 +147,45 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             for (int i = 0; i < candles.Count; i++) candles[i].Index = i;
 
             return candles;
+        }
+
+        private static List<DateValue<double>> GetUltimateSmootherValues(List<Candle> candles)
+        {
+            int period = 50;
+
+            // Ultimate Smoother function based on John Ehlers' formula
+            double coeff = Math.Sqrt(2.0);
+            double step = 2.0 * Math.PI / period;
+            double a1 = Math.Exp(-1.0 * coeff * Math.PI / period);
+            double b1 = 2.0 * a1 * Math.Cos(coeff * step / period);
+            double c2 = b1;
+            double c3 = -1.0 * a1 * a1;
+            double c1 = (1 + c2 - c3) / 4.0;
+
+            var result = new List<DateValue<double>>();
+
+            for (int i = 0; i < candles.Count; i++)
+                if (i < 3)
+                    result.Add(
+                        new DateValue<double>
+                        {
+                            Date = candles[i].Date,
+                            Value = candles[i].Close
+                        });
+
+                else
+                    result.Add(
+                        new DateValue<double>
+                        {
+                            Date = candles[i].Date,
+                            Value = (1 - c1) * candles[i].Close +
+                                    (2 * c1 - c2) * candles[i - 1].Close -
+                                    (c1 + c3) * candles[i - 2].Close +
+                                    c2 * result[i - 1].Value +
+                                    c3 * result[i - 2].Value
+                        });
+
+            return result;
         }
     }
 }

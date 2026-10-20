@@ -27,7 +27,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
         {
             var followTrendSettings = options.Value;
 
-            var tickers = followTrendSettings.Tickers;
+            var tickers = followTrendSettings.DividendShareTickers;
 
             var strategy = serviceProvider.GetRequiredKeyedService<FollowTrendStrategy>($"FollowTrendStrategy{request.FollowTrendVersion}");
 
@@ -46,8 +46,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             strategy.CandleData = candleData;
             
             var instrumentData = await dataService.GetInstrumentDataAsync(tickers);
-            strategy.PositionData = tickers.ToDictionary(k => k, v => new PositionData { Ticker = v, Lot = instrumentData[v].Lot ?? 1 });
-            strategy.PositionData.TryAdd(MON, new PositionData { Ticker = MON, Lot = 1 });
+            strategy.PositionData = tickers.ToDictionary(k => k, v => new PositionData { Ticker = v, Weight = 0, Lot = instrumentData[v].Lot ?? 1 });
+            strategy.PositionData.TryAdd(MON, new PositionData { Ticker = MON, Weight = 0, Lot = 1 });
 
             strategy.TotalSumLife = Convert.ToDouble(((await parameterRepository.GetParameterValueAsync("TotalSum:FollowTrend")) ?? "0").Replace(" ", "").Trim());
             

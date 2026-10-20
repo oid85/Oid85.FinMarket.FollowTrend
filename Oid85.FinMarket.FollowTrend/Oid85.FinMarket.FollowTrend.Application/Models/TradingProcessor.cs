@@ -30,9 +30,9 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
         }
 
         /// <summary>
-        /// Закрыть позиции по всем активам
+        /// Закрыть позиции по активам
         /// </summary>
-        public void CloseAllPositions()
+        public void ClosePositions()
         {
             foreach (var (ticker, _) in BalanceData.Where(x => x.Key != RUB).ToDictionary())
             {
@@ -61,23 +61,35 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
         }
 
         /// <summary>
-        /// Открыть позиции в портфеле по заданным весам активов
+        /// Синхронизировать позиции в портфеле по заданным весам активов
         /// </summary>        
-        public void OpenPositionsByWeights(Dictionary<string, double> WeightData, bool openPositionMon = true)
+        public void SyncPositions(Dictionary<string, double> weightData, bool openPositionMon = true)
         {
-            double weightSum = WeightData.Sum(x => x.Value);
+            // Закрываем позиции
+            ClosePositions();
 
-            foreach (var (ticker, _) in WeightData.Where(x => x.Key != MON).Where(x => x.Value > 0.0).ToDictionary())
-            {
-                double share = WeightData[ticker] / weightSum;
-                OpenPositionByShare(ticker, share);
-            }
+            // Открываем позиции по заданным весам активов
+            OpenPositionsByWeight(weightData);
 
             // Закупаем на остатки фонд ликвидности
             if (openPositionMon)
                 OpenPositionMon();
         }
-        
+
+        /// <summary>
+        /// Открыть позиции по весам
+        /// </summary>
+        public void OpenPositionsByWeight(Dictionary<string, double> weightData)
+        {
+            double weightSum = weightData.Sum(x => x.Value);
+
+            foreach (var (ticker, _) in weightData.Where(x => x.Key != MON).Where(x => x.Value > 0.0).ToDictionary())
+            {
+                double share = weightData[ticker] / weightSum;
+                OpenPositionByShare(ticker, share);
+            }
+        }
+
         /// <summary>
         /// Открыть позицию по тикеру на долю портфеля
         /// </summary>

@@ -15,9 +15,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFollowTrendService, FollowTrendService>();
         services.AddScoped<IBacktestService, BacktestService>();
 
-        services.AddKeyedTransient<FollowTrendStrategy, FollowTrendStrategyClassic>(nameof(FollowTrendStrategyClassic));
-        services.AddKeyedTransient<FollowTrendStrategy, FollowTrendStrategyBreakEvenStop>(nameof(FollowTrendStrategyBreakEvenStop));
-        services.AddKeyedTransient<FollowTrendStrategy, FollowTrendStrategyTrailStop>(nameof(FollowTrendStrategyTrailStop));
-        services.AddKeyedTransient<FollowTrendStrategy, FollowTrendStrategyUpdateStop>(nameof(FollowTrendStrategyUpdateStop));
+        services.AddKeyedTransient<FollowTrendStrategy, FollowTrendUltimateSmootherStrategy>(nameof(FollowTrendUltimateSmootherStrategy));
     }
 }

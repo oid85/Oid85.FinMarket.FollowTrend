@@ -36,7 +36,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
         {
             var followTrendSettings = options.Value;
 
-            _tickers = followTrendSettings.Tickers;
+            _tickers = followTrendSettings.DividendShareTickers;
 
             _candleData = await dataService.GetCandleDataAsync(_tickers);
             _candleData.TryAdd(KnownTickers.MON, await dataService.GetMoneyEquivalentCandlesAsync(_from, _to));
@@ -44,10 +44,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
 
             await strategyExecuteResultRepository.DeleteAsync();
 
-            await BacktestByStrategyName(nameof(FollowTrendStrategyClassic));
-            await BacktestByStrategyName(nameof(FollowTrendStrategyBreakEvenStop));
-            await BacktestByStrategyName(nameof(FollowTrendStrategyTrailStop));
-            await BacktestByStrategyName(nameof(FollowTrendStrategyUpdateStop));
+            await BacktestByStrategyName(nameof(FollowTrendUltimateSmootherStrategy));
 
             return new ();
         }
@@ -84,15 +81,13 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
                     foreach (var rebalanceDays in ParameterListRebalanceDays)
                     {
                         var strategyParams =
-                                $"Period = {JsonSerializer.Serialize(period)}; " +
-                                $"CounTopTickers = {JsonSerializer.Serialize(counTopTickers)}; " +
-                                $"RebalanceDays = {JsonSerializer.Serialize(rebalanceDays)};"
+                                $"Period = {JsonSerializer.Serialize(period)};"
                                 ;                        
 
                         try
                         {
                             strategy.Period = period;
-                            strategy.CounTopTickers = counTopTickers;
+                            strategy.CountTickers = counTopTickers;
                             strategy.RebalanceDays = rebalanceDays;
 
                             strategy.StartMoneySum = followTrendSettings.StartMoneySum;

@@ -13,11 +13,9 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public int Period { get; set; }
 
-        public int CounTopTickers { get; set; }
+        public int CountTickers { get; set; }
 
         public List<int> RebalanceDays { get; set; } = [];
-
-        public List<int> UpdateStopDays { get; set; } = [];
 
         public virtual List<string> GetDescription() => [];
 
@@ -65,17 +63,13 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public List<string> Tickers => [.. PositionData.Keys];
 
-        public List<string> TopTickers { get; set; } = [];
+        public List<string> SignalTickers { get; set; } = [];
 
         public List<string> PortfolioTickers => [.. PositionData.Values.Where(x => x.Weight > 0.0).Select(x => x.Ticker)];
 
         public List<string> PortfolioWithoutMonTickers => [.. PositionData.Values.Where(x => x.Ticker != MON).Where(x => x.Weight > 0.0).Select(x => x.Ticker)];
 
         public double WeightSum => PositionData.Values.Sum(x => x.Weight);
-
-        public bool IsRebalanceDay => RebalanceDays.Contains(CurrentDate.Day);
-
-        public bool IsUpdateStopDay => UpdateStopDays.Contains(CurrentDate.Day);
 
         public DateOnly CurrentDate { get; set; } = DateOnly.MinValue;
 
@@ -91,29 +85,20 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public void AddMessage(string ticker, string message, string colorFill) => Messages.Add(new() { Date = CurrentDate, Ticker = ticker, Message = message, ColorFill = colorFill });
 
-        public void AddRebalanceMessage()
-        {
-            foreach (var ticker in PortfolioWithoutMonTickers)
-                AddMessage(
-                    ticker, 
-                    $"Ребалансировка моментума. " +
-                    $"Позиция {ticker}, " +
-                    $"EntryPrice {PositionData[ticker].EntryPrice.RoundTo(4).ToNumberPrettyString()} руб., " +              
-                    $"StopPrice {PositionData[ticker].StopPrice.RoundTo(4).ToNumberPrettyString()} руб.", 
-                    KnownColors.LightGreen);
-        }
-
         public void ClearMessages() => Messages.Clear();
 
         public Candle? GetCandle(string ticker) => CandleData[ticker].FindLast(x => x.Date <= CurrentDate.AddDays(-1));
 
-        public void SetTopTickers() => TopTickers = [.. FollowTrendHelper.GetFollowTrendTopTickers(CandleData, CurrentDate.AddDays(-1), Period, CounTopTickers), MON];
+        public virtual void SetSignalTickers()
+        {
+
+        }
 
         public void SetWeights()
         {
             Tickers.ForEach(ticker => PositionData[ticker].Weight = 0.0);
-            TopTickers.ForEach(ticker => PositionData[ticker].Weight = 1.0);
-            PositionData[MON].Weight = CounTopTickers - TopTickers.Count(x => x != MON);
+            SignalTickers.ForEach(ticker => PositionData[ticker].Weight = 1.0);
+            PositionData[MON].Weight = CountTickers - SignalTickers.Count(x => x != MON);
         }
 
         public void UpdatePrices() => TradingProcessor.UpdatePrices();
@@ -133,110 +118,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
             }                
         }
 
-        public void SetAverageCandleBodies() => PortfolioWithoutMonTickers.ForEach(ticker => PositionData[ticker].AverageCandleBody = CandleData[ticker].Where(x => x.Date >= CurrentDate.AddDays(-1).AddDays(-1 * Period) && x.Date <= CurrentDate.AddDays(-1)).Average(x => Math.Abs(x.Close - x.Open)));
-
-        public void UpdateClassicStops()
-        {
-            foreach (var ticker in PortfolioWithoutMonTickers)
-            {
-                double stopSize = 2.0 * PositionData[ticker].AverageCandleBody;
-                double newStopPrice = PositionData[ticker].Candle.Close - stopSize;
-
-                // Подтягиваем стоп
-                if (newStopPrice > PositionData[ticker].StopPrice)
-                {
-                    PositionData[ticker].StopPrice = newStopPrice;
-                    PositionData[ticker].IsBreakEvenStop = false;
-
-                    AddMessage(
-                        ticker,
-                        $"Пересчет стопа. " +
-                        $"{ticker}, " +
-                        $"NewStopPrice {PositionData[ticker].StopPrice.RoundTo(4).ToNumberPrettyString()} руб.",
-                        KnownColors.LightGreen);
-                }
-            }
-        }
-
-        public void SetClassicStops()
-        {
-            foreach (var ticker in PortfolioWithoutMonTickers)
-            {
-                double stopSize = 2.0 * PositionData[ticker].AverageCandleBody;
-                double stopPrice = PositionData[ticker].Candle.Close - stopSize;
-
-                PositionData[ticker].StopPrice = stopPrice;
-                PositionData[ticker].IsBreakEvenStop = false;
-            }
-        }
-
-        public void SetEntryPrices() => PortfolioWithoutMonTickers.ForEach(ticker => PositionData[ticker].EntryPrice = PositionData[ticker].Candle.Close);
-
-        public void CloseAllPositions() => TradingProcessor.CloseAllPositions();
-
-        public void OpenPositionsByWeights()
-        {
-            PortfolioWithoutMonTickers.ForEach(ticker => PositionData[ticker].CountBuy++);
-            TradingProcessor.OpenPositionsByWeights(PositionData.ToDictionary(x => x.Key, x => x.Value.Weight), true);
-        }
-
-        public void MoveStopsToBreakEven()
-        {
-            foreach (var ticker in PortfolioWithoutMonTickers)
-                if (!PositionData[ticker].IsBreakEvenStop)
-                {
-                    double stopSize = 2.0 * PositionData[ticker].AverageCandleBody;
-                    double newStopPrice = PositionData[ticker].Candle.Close - stopSize;
-
-                    if (PositionData[ticker].Candle.Close >= PositionData[ticker].EntryPrice + 2.0 * stopSize)
-                    {
-                        PositionData[ticker].StopPrice = newStopPrice;
-                        PositionData[ticker].IsBreakEvenStop = true;
-                    }
-                }
-        }
-
-        public void TrailStops()
-        {
-            foreach (var ticker in PortfolioWithoutMonTickers)
-            {
-                double stopSize = 2.0 * PositionData[ticker].AverageCandleBody;
-                double newStopPrice = PositionData[ticker].Candle.Close - stopSize;
-
-                if (PositionData[ticker].Candle.Close >= PositionData[ticker].StopPrice + stopSize)
-                    PositionData[ticker].StopPrice = newStopPrice;
-            }
-        }
-
-        public void CheckStopsWithClosePosition()
-        {
-            foreach (var ticker in PortfolioWithoutMonTickers)
-                if (PositionData[ticker].Candle.Low < PositionData[ticker].StopPrice)
-                {
-                    PositionData[ticker].CountTriggerStop++;
-                    ClosePosition(ticker);
-                }
-        }
-
-        public void ClosePosition(string ticker)
-        {
-            // Скорректируем веса портфеля
-            PositionData[ticker].Weight = 0.0;
-            PositionData[MON].Weight += 1.0;
-
-            TradingProcessor.ClosePosition(ticker, true);
-
-            AddMessage(
-                ticker, 
-                $"Стоп-лосс. " +
-                $"Закрыта позиция по {ticker}, " +
-                $"EntryPrice {PositionData[ticker].EntryPrice.RoundTo(4).ToNumberPrettyString()} руб., " +
-                $"LowPrice {PositionData[ticker].Candle.Low.RoundTo(4).ToNumberPrettyString()} руб., " +                
-                $"StopPrice {PositionData[ticker].StopPrice.RoundTo(4).ToNumberPrettyString()} руб.",
-                KnownColors.LightRed);
-            
-            AddMessage(MON, $"Увеличена доля фонда ликвидности", KnownColors.LightGreen);
-        }
+        public void SyncPositions() => TradingProcessor.SyncPositions(PositionData.ToDictionary(k => k.Key, v => v.Value.Weight), true);
 
         public void UpdateEquitySeries() => 
             EquitySeries.Data.Add(
@@ -278,8 +160,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
                 double tickerCost = TotalSumLife / WeightSum * PositionData[ticker].Weight.RoundTo(2);
                 int tickerSize = Convert.ToInt32(Math.Truncate(tickerCost / candle!.Close / PositionData[ticker].Lot) * PositionData[ticker].Lot);
                 double entryPrice = ticker == MON ? 0.0 : PositionData[ticker].EntryPrice;
-                double stopPrice = ticker == MON ? 0.0 : PositionData[ticker].StopPrice;
-                double currentStopSizePercent = ticker == MON ? 0.0 : PositionData[ticker].CurrentStopSizePercent;
                 double profitPercent = ticker == MON ? 0.0 : PositionData[ticker].ProfitPercent;
 
                 currentPositions.Add(
@@ -290,8 +170,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
                         Size = tickerSize,
                         Cost = tickerCost,
                         EntryPrice = entryPrice,
-                        StopPrice = stopPrice,
-                        CurrentStopSizePercent = currentStopSizePercent,
                         ProfitPercent = profitPercent
                     });
             }
@@ -312,28 +190,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public List<DiagramSeries> GetPriceSeries() => DiagramSeriesHelper.GetPriceSeries(PortfolioTickers, CandleData);
 
-        public List<List<DiagramSeries>> GetPriceWithStopSeries() => DiagramSeriesHelper.GetPriceWithStopSeries(PortfolioTickers, CandleData, PositionData);
-
-        public List<TickerStatistic> GetTickerStatistics()
-        {
-            var tickerStatistics = PositionData
-                .Select(x =>
-                new TickerStatistic
-                {
-                    Ticker = x.Key,
-                    CountBuy = x.Value.CountBuy,
-                    CountTriggerStop = x.Value.CountTriggerStop,
-                    CountTriggerStopPercent = x.Value.CountTriggerStop == 0 ? 0.0 : (Convert.ToDouble(x.Value.CountTriggerStop) / Convert.ToDouble(x.Value.CountBuy) * 100.0).RoundTo(2)
-                })
-                .OrderBy(x => x.Ticker)
-                .Where(x => x.Ticker != MON)
-                .ToList();
-
-            int number = 1;
-            foreach (var tickerStatistic in tickerStatistics)
-                tickerStatistic.Number = number++;
-
-            return tickerStatistics;
-        }
+        public List<List<DiagramSeries>> GetPriceWithStopSeries() => DiagramSeriesHelper.GetPriceWithEntryPriceSeries(PortfolioTickers, CandleData, PositionData);
     }
 }
