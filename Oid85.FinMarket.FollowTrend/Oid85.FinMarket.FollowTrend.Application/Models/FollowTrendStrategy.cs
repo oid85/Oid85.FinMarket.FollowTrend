@@ -8,14 +8,18 @@ using static Oid85.FinMarket.FollowTrend.Common.KnownConstants.KnownTickers;
 namespace Oid85.FinMarket.FollowTrend.Application.Models
 {
     public class FollowTrendStrategy
-    {
-        public virtual string Name { get; set; } = string.Empty;
+    {        
+        #region Блок параметров торгового алгоритма
 
         public int Period { get; set; }
 
         public int CountTickers { get; set; }
 
         public List<int> RebalanceDays { get; set; } = [];
+
+        #endregion
+
+        public virtual string Name { get; set; } = string.Empty;
 
         public virtual List<string> GetDescription() => [];
 

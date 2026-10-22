@@ -1,6 +1,4 @@
-﻿using Oid85.FinMarket.FollowTrend.Application.Helpers;
-using Oid85.FinMarket.FollowTrend.Application.Models;
-using Oid85.FinMarket.FollowTrend.Common.KnownConstants;
+﻿using Oid85.FinMarket.FollowTrend.Application.Models;
 using Oid85.FinMarket.FollowTrend.Core.Models;
 using static Oid85.FinMarket.FollowTrend.Common.KnownConstants.KnownTickers;
 
@@ -47,7 +45,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
         {            
             if (UltimateSmootherData is null) return [];
 
-            DateOnly from = date.AddDays(-10);
+            DateOnly from = date.AddDays(-5);
             DateOnly to = date;
 
             var tickers = UltimateSmootherData
@@ -64,11 +62,10 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
         public static bool GetSignal(List<DateValue<double>> values)
         {
-            if (values.Count < 10)
+            if (values.Count < 5)
                 return false;
 
             return 
-                values[^4].Value < values[^3].Value &&
                 values[^3].Value < values[^2].Value &&
                 values[^2].Value < values[^1].Value;
         }
