@@ -1,5 +1,7 @@
 ﻿using Oid85.FinMarket.FollowTrend.Application.Helpers;
 using Oid85.FinMarket.FollowTrend.Application.Models;
+using Oid85.FinMarket.FollowTrend.Common.KnownConstants;
+using Oid85.FinMarket.FollowTrend.Core.Models;
 using static Oid85.FinMarket.FollowTrend.Common.KnownConstants.KnownTickers;
 
 namespace Oid85.FinMarket.FollowTrend.Application.Strategies
@@ -16,10 +18,10 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
         public override void InitMonitorParameters()
         {
-            Period = 10;
+            Period = 50;
         }
 
-        public override void SetSignalTickers() => SignalTickers = [.. FollowTrendHelper.GetUltimateSmootherSignalTickers(CandleData, CurrentDate.AddDays(-1), Period, CountTickers), MON];
+        public override void SetSignalTickers() => SignalTickers = [.. GetSignalTickers(CurrentDate.AddDays(-1)), MON];
 
         public override void Execute()
         {
@@ -39,6 +41,36 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
                 UpdateEquitySeries();
                 UpdateMoneySeries();
             }
+        }
+
+        public List<string> GetSignalTickers(DateOnly date)
+        {            
+            if (UltimateSmootherData is null) return [];
+
+            DateOnly from = date.AddDays(-10);
+            DateOnly to = date;
+
+            var tickers = UltimateSmootherData
+                .Where(x => x.Key != MON)
+                .ToDictionary(
+                    k => k.Key,
+                    v => GetSignal([.. v.Value.Where(x => x.Date >= from && x.Date <= to)]))
+                .Where(x => x.Value == true)
+                .Select(x => x.Key)
+                .ToList();
+
+            return tickers ?? [];
+        }
+
+        public static bool GetSignal(List<DateValue<double>> values)
+        {
+            if (values.Count < 10)
+                return false;
+
+            return 
+                values[^4].Value < values[^3].Value &&
+                values[^3].Value < values[^2].Value &&
+                values[^2].Value < values[^1].Value;
         }
     }
 }

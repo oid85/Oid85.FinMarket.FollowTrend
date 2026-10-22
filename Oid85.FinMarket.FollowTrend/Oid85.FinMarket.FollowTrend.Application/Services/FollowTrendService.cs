@@ -4,7 +4,6 @@ using Oid85.FinMarket.FollowTrend.Application.Interfaces.ApiClients;
 using Oid85.FinMarket.FollowTrend.Application.Interfaces.Repositories;
 using Oid85.FinMarket.FollowTrend.Application.Interfaces.Services;
 using Oid85.FinMarket.FollowTrend.Application.Models;
-using Oid85.FinMarket.FollowTrend.Common.KnownConstants;
 using Oid85.FinMarket.FollowTrend.Core.Configuration;
 using Oid85.FinMarket.FollowTrend.Core.Models;
 using Oid85.FinMarket.FollowTrend.Core.Requests;
@@ -44,7 +43,10 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             var candleData = await dataService.GetCandleDataAsync(tickers);
             candleData.TryAdd(MON, await dataService.GetMoneyEquivalentCandlesAsync(from, to));
             strategy.CandleData = candleData;
-            
+
+            var ultimateSmootherData = await dataService.GetUltimateSmootherDataAsync(tickers, strategy.Period);
+            strategy.UltimateSmootherData = ultimateSmootherData;
+
             var instrumentData = await dataService.GetInstrumentDataAsync(tickers);
             strategy.PositionData = tickers.ToDictionary(k => k, v => new PositionData { Ticker = v, Weight = 0, Lot = instrumentData[v].Lot ?? 1 });
             strategy.PositionData.TryAdd(MON, new PositionData { Ticker = MON, Weight = 0, Lot = 1 });

@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Oid85.FinMarket.FollowTrend.Application.Interfaces.ApiClients;
+﻿using Oid85.FinMarket.FollowTrend.Application.Interfaces.ApiClients;
 using Oid85.FinMarket.FollowTrend.Application.Interfaces.Services;
 using Oid85.FinMarket.FollowTrend.Common.Utils;
 using Oid85.FinMarket.FollowTrend.Core.Models;
@@ -33,7 +32,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             return _candleData;
         }
 
-        public async Task<Dictionary<string, List<DateValue<double>>>> GetUltimateSmootherDataAsync(List<string> tickers)
+        public async Task<Dictionary<string, List<DateValue<double>>>> GetUltimateSmootherDataAsync(List<string> tickers, int period)
         {
             if (_ultimateSmootherData is not null)
             {
@@ -41,7 +40,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
                     if (!_ultimateSmootherData.ContainsKey(ticker))
                     {
                         var candles = await GetCandlesByTickerAsync(ticker);
-                        _ultimateSmootherData.Add(ticker, GetUltimateSmootherValues(candles));
+                        _ultimateSmootherData.Add(ticker, GetUltimateSmootherValues(candles, period));
                     }
                 
                 return _ultimateSmootherData;
@@ -52,7 +51,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             var candleData = await GetCandleDataAsync(tickers);
 
             foreach (var ticker in tickers.Distinct())
-                _ultimateSmootherData.Add(ticker, GetUltimateSmootherValues(candleData[ticker]));
+                _ultimateSmootherData.Add(ticker, GetUltimateSmootherValues(candleData[ticker], period));
 
             return _ultimateSmootherData;
         }
@@ -149,10 +148,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             return candles;
         }
 
-        private static List<DateValue<double>> GetUltimateSmootherValues(List<Candle> candles)
+        private static List<DateValue<double>> GetUltimateSmootherValues(List<Candle> candles, int period)
         {
-            int period = 50;
-
             // Ultimate Smoother function based on John Ehlers' formula
             double coeff = Math.Sqrt(2.0);
             double step = 2.0 * Math.PI / period;

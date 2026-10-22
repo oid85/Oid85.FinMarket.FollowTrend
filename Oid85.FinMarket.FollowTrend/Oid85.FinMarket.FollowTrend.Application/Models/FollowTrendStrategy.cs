@@ -37,6 +37,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public Dictionary<string, List<Candle>> CandleData { get; set; } = [];
 
+        public Dictionary<string, List<DateValue<double>>> UltimateSmootherData { get; set; } = [];
+
         public List<FollowTrendMessage> Messages { get; set; } = [];
 
         public DiagramSeries EquitySeries { get; set; } = new() { Name = "Капитал", Color = KnownColors.Green, ColorFill = KnownColors.Green };
