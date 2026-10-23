@@ -60,14 +60,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
             return tickers ?? [];
         }
 
-        public static bool GetSignal(List<DateValue<double>> values)
-        {
-            if (values.Count < 5)
-                return false;
-
-            return 
-                values[^3].Value < values[^2].Value &&
-                values[^2].Value < values[^1].Value;
-        }
+        public static bool GetSignal(List<DateValue<double>> values) => values.Count >= 2 && values[^2].Value < values[^1].Value;
     }
 }
