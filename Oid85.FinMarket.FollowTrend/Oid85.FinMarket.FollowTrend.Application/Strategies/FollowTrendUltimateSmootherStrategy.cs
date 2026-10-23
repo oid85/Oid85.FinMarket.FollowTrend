@@ -43,8 +43,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
         public List<string> GetSignalTickers(DateOnly date)
         {
-            return ["SBER"];
-
             if (UltimateSmootherData is null) return [];
 
             DateOnly from = date.AddDays(-5);

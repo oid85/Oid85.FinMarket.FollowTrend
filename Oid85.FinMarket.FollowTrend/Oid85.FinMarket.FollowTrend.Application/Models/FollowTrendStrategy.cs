@@ -104,7 +104,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
         {
             Tickers.ForEach(ticker => PositionData[ticker].Weight = 0.0);
             SignalTickers.ForEach(ticker => PositionData[ticker].Weight = 1.0);
-            PositionData[MON].Weight = CountTickers - SignalTickers.Count(x => x != MON);
+            PositionData[MON].Weight = Tickers.Count - SignalTickers.Count(x => x != MON);
         }
 
         public void UpdatePrices() => TradingProcessor.UpdatePrices();
