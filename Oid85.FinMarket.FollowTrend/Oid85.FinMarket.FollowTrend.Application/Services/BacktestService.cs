@@ -22,9 +22,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
         IServiceProvider serviceProvider) 
         : IBacktestService
     {
-        private readonly List<int> PARAMETER_LIST_PERIOD = [10, 15, 30];
-        private readonly List<int> PARAMETER_LIST_COUNT_TOP_TICKRES = [8, 10];
-        private readonly List<List<int>> PARAMETER_LIST_REBALANCE_DAYS = [[1], [1, 16], [1, 11, 21]];        
+        private readonly List<int> PARAMETER_LIST_PERIOD = [10, 25, 50]; 
 
         private readonly DateOnly _from = new DateOnly(2021, 1, 1);
         private readonly DateOnly _to = DateOnly.FromDateTime(DateTime.Today);
@@ -57,9 +55,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
 
             strategy.Name = strategyName;
 
-            List<int> ParameterListPeriod = PARAMETER_LIST_PERIOD;
-            List<int> ParameterListCounTopTickers = PARAMETER_LIST_COUNT_TOP_TICKRES;
-            List<List<int>> ParameterListRebalanceDays = PARAMETER_LIST_REBALANCE_DAYS;            
+            List<int> ParameterListPeriod = PARAMETER_LIST_PERIOD;           
 
             strategy.From = _from;
             strategy.To = _to;
@@ -77,48 +73,44 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             };
 
             foreach (var period in ParameterListPeriod)
-                foreach (var counTopTickers in ParameterListCounTopTickers)
-                    foreach (var rebalanceDays in ParameterListRebalanceDays)
+            {
+                var strategyParams =
+                        $"Period = {JsonSerializer.Serialize(period)};"
+                        ;                        
+
+                try
+                {
+                    strategy.Period = period;
+
+                    strategy.StartMoneySum = followTrendSettings.StartMoneySum;
+
+                    strategy.EquitySeries.Data.Clear();
+                    strategy.DrawdownSeries.Data.Clear();
+                    strategy.MoneySeries.Data.Clear();
+
+                    strategy.TradingProcessor.Reset();
+
+                    strategy.Execute();
+
+                    var strategyExecuteResult = ToStrategyExecuteResult(strategy);
+
+                    strategyExecuteResult.StrategyParams = strategyParams;
+                    strategyExecuteResult.ResultMessage = "OK";
+
+                    await strategyExecuteResultRepository.AddAsync([strategyExecuteResult]);
+                }
+
+                catch (Exception ex)
+                {
+                    var strategyExecuteResult = new StrategyExecuteResult
                     {
-                        var strategyParams =
-                                $"Period = {JsonSerializer.Serialize(period)};"
-                                ;                        
+                        StrategyParams = strategyParams,
+                        ResultMessage = $"Error. {ex.Message}"
+                    };
 
-                        try
-                        {
-                            strategy.Period = period;
-                            strategy.CountTickers = counTopTickers;
-                            strategy.RebalanceDays = rebalanceDays;
-
-                            strategy.StartMoneySum = followTrendSettings.StartMoneySum;
-
-                            strategy.EquitySeries.Data.Clear();
-                            strategy.DrawdownSeries.Data.Clear();
-                            strategy.MoneySeries.Data.Clear();
-
-                            strategy.TradingProcessor.Reset();
-
-                            strategy.Execute();
-
-                            var strategyExecuteResult = ToStrategyExecuteResult(strategy);
-
-                            strategyExecuteResult.StrategyParams = strategyParams;
-                            strategyExecuteResult.ResultMessage = "OK";
-
-                            await strategyExecuteResultRepository.AddAsync([strategyExecuteResult]);
-                        }
-
-                        catch (Exception ex)
-                        {
-                            var strategyExecuteResult = new StrategyExecuteResult
-                            {
-                                StrategyParams = strategyParams,
-                                ResultMessage = $"Error. {ex.Message}"
-                            };
-
-                            await strategyExecuteResultRepository.AddAsync([strategyExecuteResult]);
-                        }
-                    }
+                    await strategyExecuteResultRepository.AddAsync([strategyExecuteResult]);
+                }
+            }
         }
 
         public async Task<BacktestResultResponse> BacktestResultAsync(BacktestResultRequest request)

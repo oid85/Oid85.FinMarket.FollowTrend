@@ -24,11 +24,13 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
     {
         public async Task<MonitorResponse> MonitorVersionAsync(MonitorRequest request)
         {
+            request.FollowTrendVersion = "UltimateSmoother";
+
             var followTrendSettings = options.Value;
 
             var tickers = followTrendSettings.DividendShareTickers;
 
-            var strategy = serviceProvider.GetRequiredKeyedService<FollowTrendStrategy>($"FollowTrendStrategy{request.FollowTrendVersion}");
+            var strategy = serviceProvider.GetRequiredKeyedService<FollowTrendStrategy>($"FollowTrend{request.FollowTrendVersion}Strategy");
 
             strategy.InitMonitorParameters();
 
