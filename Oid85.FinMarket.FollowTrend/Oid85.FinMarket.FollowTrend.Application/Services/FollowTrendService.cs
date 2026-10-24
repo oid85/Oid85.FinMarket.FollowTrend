@@ -15,9 +15,9 @@ using static Oid85.FinMarket.FollowTrend.Common.KnownConstants.KnownTickers;
 namespace Oid85.FinMarket.FollowTrend.Application.Services
 {
     public class FollowTrendService(
-        IOptions<FollowTrendSettings> options,
         IDataService dataService,
         IParameterRepository parameterRepository,
+        IPortfolioSettingRepository portfolioSettingRepository,
         ITraderFinamApiClient traderFinamApiClient,
         IServiceProvider serviceProvider)
         : IFollowTrendService
@@ -26,15 +26,15 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
         {
             request.FollowTrendVersion = "UltimateSmoother";
 
-            var followTrendSettings = options.Value;
+            var portfolioSettings = await portfolioSettingRepository.GetAsync(request.FollowTrendVersion);
 
-            var tickers = followTrendSettings.DividendShareTickers;
+            var tickers = portfolioSettings!.Tickers;
 
             var strategy = serviceProvider.GetRequiredKeyedService<FollowTrendStrategy>($"FollowTrend{request.FollowTrendVersion}Strategy");
 
             strategy.InitMonitorParameters();
 
-            strategy.StartMoneySum = followTrendSettings.StartMoneySum;         
+            strategy.StartMoneySum = portfolioSettings.MoneySum;         
 
             var from = new DateOnly(2021, 2, 1);
             var to = DateOnly.FromDateTime(DateTime.Today);
@@ -60,7 +60,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
                 CandleData = candleData,
                 InstrumentData = instrumentData,
                 Tickers = tickers,
-                StartMoneySum = followTrendSettings.StartMoneySum
+                StartMoneySum = portfolioSettings.MoneySum
             };
 
             strategy.TradingProcessor.Reset();

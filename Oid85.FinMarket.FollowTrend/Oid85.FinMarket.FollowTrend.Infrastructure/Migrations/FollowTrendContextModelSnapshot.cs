@@ -43,6 +43,33 @@ namespace Oid85.FinMarket.FollowTrend.Infrastructure.Migrations
                     b.ToTable("ParameterEntities", "public");
                 });
 
+            modelBuilder.Entity("Oid85.FinMarket.FollowTrend.Infrastructure.Database.Entities.PortfolioSettingEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<double>("MoneySum")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TickerListName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Tickers")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PortfolioSettingEntities", "public");
+                });
+
             modelBuilder.Entity("Oid85.FinMarket.FollowTrend.Infrastructure.Database.Entities.StrategyExecuteResultEntity", b =>
                 {
                     b.Property<Guid>("Id")

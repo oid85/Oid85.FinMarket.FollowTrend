@@ -9,6 +9,7 @@ public class FollowTrendContext(DbContextOptions<FollowTrendContext> options) : 
 {
     public DbSet<ParameterEntity> ParameterEntities { get; set; }
     public DbSet<StrategyExecuteResultEntity> StrategyExecuteResultEntities { get; set; }
+    public DbSet<PortfolioSettingEntity> PortfolioSettingEntities { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

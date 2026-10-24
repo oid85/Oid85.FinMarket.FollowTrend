@@ -19,6 +19,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
         IOptions<FollowTrendSettings> options,
         IDataService dataService,
         IStrategyExecuteResultRepository strategyExecuteResultRepository,
+        IPortfolioSettingRepository portfolioSettingRepository,
         IServiceProvider serviceProvider) 
         : IBacktestService
     {
@@ -31,10 +32,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
         private Dictionary<string, Instrument> _instrumentData = [];
 
         public async Task<BacktestResponse> BacktestAsync(BacktestRequest request)
-        {
+        {            
             var followTrendSettings = options.Value;
-
-            _tickers = followTrendSettings.DividendShareTickers;
 
             _candleData = await dataService.GetCandleDataAsync(_tickers);
             _candleData.TryAdd(KnownTickers.MON, await dataService.GetMoneyEquivalentCandlesAsync(_from, _to));
@@ -49,13 +48,20 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
 
         private async Task BacktestByStrategyName(string strategyName)
         {
+            var portfolioSettings = await portfolioSettingRepository.GetAsync(
+                strategyName
+                .Replace("FollowTrend", "")
+                .Replace("Strategy", ""));
+
             var followTrendSettings = options.Value;
 
             var strategy = serviceProvider.GetRequiredKeyedService<FollowTrendStrategy>(strategyName);
 
             strategy.Name = strategyName;
 
-            List<int> ParameterListPeriod = PARAMETER_LIST_PERIOD;           
+            List<int> ParameterListPeriod = PARAMETER_LIST_PERIOD;
+
+            _tickers = portfolioSettings!.Tickers;
 
             strategy.From = _from;
             strategy.To = _to;
@@ -69,7 +75,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
                 CandleData = _candleData,
                 InstrumentData = _instrumentData,
                 Tickers = _tickers,
-                StartMoneySum = followTrendSettings.StartMoneySum
+                StartMoneySum = portfolioSettings.MoneySum
             };
 
             foreach (var period in ParameterListPeriod)
@@ -82,7 +88,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
                 {
                     strategy.Period = period;
 
-                    strategy.StartMoneySum = followTrendSettings.StartMoneySum;
+                    strategy.StartMoneySum = portfolioSettings.MoneySum;
 
                     strategy.EquitySeries.Data.Clear();
                     strategy.DrawdownSeries.Data.Clear();
