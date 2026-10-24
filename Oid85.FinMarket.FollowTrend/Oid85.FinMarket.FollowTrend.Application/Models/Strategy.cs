@@ -7,7 +7,7 @@ using static Oid85.FinMarket.FollowTrend.Common.KnownConstants.KnownTickers;
 
 namespace Oid85.FinMarket.FollowTrend.Application.Models
 {
-    public class FollowTrendStrategy
+    public class Strategy
     {        
         #region Блок параметров торгового алгоритма
 

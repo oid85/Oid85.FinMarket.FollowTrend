@@ -15,6 +15,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IFollowTrendService, FollowTrendService>();
         services.AddScoped<IBacktestService, BacktestService>();
 
-        services.AddKeyedTransient<FollowTrendStrategy, FollowTrendUltimateSmootherStrategy>(nameof(FollowTrendUltimateSmootherStrategy));
+        services.AddKeyedTransient<Strategy, ShareUltimateSmootherStrategy>(nameof(ShareUltimateSmootherStrategy));
     }
 }

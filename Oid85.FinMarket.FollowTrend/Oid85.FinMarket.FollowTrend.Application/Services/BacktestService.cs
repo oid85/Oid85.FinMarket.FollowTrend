@@ -41,21 +41,16 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
 
             await strategyExecuteResultRepository.DeleteAsync();
 
-            await BacktestByStrategyName(nameof(FollowTrendUltimateSmootherStrategy));
+            await BacktestByStrategyName(nameof(ShareUltimateSmootherStrategy));
 
             return new ();
         }
 
         private async Task BacktestByStrategyName(string strategyName)
         {
-            var portfolioSettings = await portfolioSettingRepository.GetAsync(
-                strategyName
-                .Replace("FollowTrend", "")
-                .Replace("Strategy", ""));
+            var portfolioSettings = await portfolioSettingRepository.GetAsync(strategyName.Replace("Strategy", string.Empty));
 
-            var followTrendSettings = options.Value;
-
-            var strategy = serviceProvider.GetRequiredKeyedService<FollowTrendStrategy>(strategyName);
+            var strategy = serviceProvider.GetRequiredKeyedService<Strategy>(strategyName);
 
             strategy.Name = strategyName;
 

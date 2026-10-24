@@ -4,12 +4,12 @@ using static Oid85.FinMarket.FollowTrend.Common.KnownConstants.KnownTickers;
 
 namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 {
-    public class FollowTrendUltimateSmootherStrategy : FollowTrendStrategy
+    public class ShareUltimateSmootherStrategy : Strategy
     {
         public override List<string> GetDescription()
         {
             return [
-                "Версия UltimateSmoother",
+                "Версия ShareUltimateSmoother",
                 $"Период: {Period} дней"
                 ];
         }

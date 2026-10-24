@@ -7,7 +7,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Mapping;
 
 public static class ApplicationMapper
 {
-    public static MonitorResponse ToMonitorResponse(FollowTrendStrategy strategy) => 
+    public static MonitorResponse ToMonitorResponse(Strategy strategy) => 
         new ()
         {
             Description = strategy.GetDescription(),
@@ -34,7 +34,7 @@ public static class ApplicationMapper
             CurrentDrawdownPercent = strategy.GetCurrentDrawdown()
         };
 
-    public static StrategyExecuteResult ToStrategyExecuteResult(FollowTrendStrategy strategy) =>
+    public static StrategyExecuteResult ToStrategyExecuteResult(Strategy strategy) =>
         new()
         {
             StrategyName = strategy.Name,
