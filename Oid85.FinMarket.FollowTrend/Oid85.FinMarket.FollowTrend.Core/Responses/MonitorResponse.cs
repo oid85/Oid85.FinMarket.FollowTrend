@@ -9,7 +9,7 @@ namespace Oid85.FinMarket.FollowTrend.Core.Responses
         public List<DiagramSeries> ShortBacktestSeries { get; set; } = [];
         public List<DiagramSeries> PriceDynamicSeries { get; set; } = [];
         public List<DiagramSeries> PriceSeries { get; set; } = [];
-        public List<List<DiagramSeries>> PriceWithStopSeries { get; set; } = [];
+        public List<List<DiagramSeries>> PriceWithEntryPriceSeries { get; set; } = [];
         public List<CurrentPosition> CurrentPositions { get; set; } = [];
         public List<FollowTrendMessage> Messages { get; set; } = [];
         public double Yield { get; set; }

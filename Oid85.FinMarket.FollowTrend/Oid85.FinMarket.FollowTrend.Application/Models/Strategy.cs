@@ -196,6 +196,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public List<DiagramSeries> GetPriceSeries() => DiagramSeriesHelper.GetPriceSeries(PortfolioTickers, CandleData);
 
-        public List<List<DiagramSeries>> GetPriceWithStopSeries() => DiagramSeriesHelper.GetPriceWithEntryPriceSeries(PortfolioTickers, CandleData, PositionData);
+        public List<List<DiagramSeries>> GetPriceWithEntryPriceSeries() => DiagramSeriesHelper.GetPriceWithEntryPriceSeries(PortfolioTickers, CandleData, PositionData);
     }
 }

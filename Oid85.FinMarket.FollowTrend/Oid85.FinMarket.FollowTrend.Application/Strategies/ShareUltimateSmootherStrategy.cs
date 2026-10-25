@@ -45,7 +45,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
         {
             if (UltimateSmootherData is null) return [];
 
-            DateOnly from = date.AddDays(-5);
+            DateOnly from = date.AddDays(-10);
             DateOnly to = date;
 
             var tickers = UltimateSmootherData
@@ -60,6 +60,10 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
             return tickers ?? [];
         }
 
-        public static bool GetSignal(List<DateValue<double>> values) => values.Count >= 2 && values[^2].Value < values[^1].Value;
+        public static bool GetSignal(List<DateValue<double>> values) => 
+            values.Count >= 5 &&
+            values[^4].Value < values[^3].Value &&
+            values[^3].Value < values[^2].Value &&
+            values[^2].Value < values[^1].Value;
     }
 }

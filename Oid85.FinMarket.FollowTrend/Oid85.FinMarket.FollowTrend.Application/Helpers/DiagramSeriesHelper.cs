@@ -170,7 +170,9 @@ namespace Oid85.FinMarket.FollowTrend.Application.Helpers
         {
             var series = new List<List<DiagramSeries>>();
 
-            var from = DateOnly.FromDateTime(DateTime.Today.AddDays(-15));
+            const int days = 30;
+
+            var from = DateOnly.FromDateTime(DateTime.Today.AddDays(-1 * days));
             var to = DateOnly.FromDateTime(DateTime.Today);
 
             List<string> tickers = [

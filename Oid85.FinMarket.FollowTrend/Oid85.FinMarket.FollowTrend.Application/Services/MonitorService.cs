@@ -14,17 +14,17 @@ using static Oid85.FinMarket.FollowTrend.Common.KnownConstants.KnownTickers;
 
 namespace Oid85.FinMarket.FollowTrend.Application.Services
 {
-    public class FollowTrendService(
+    public class MonitorService(
         IDataService dataService,
         IParameterRepository parameterRepository,
         IPortfolioSettingRepository portfolioSettingRepository,
         ITraderFinamApiClient traderFinamApiClient,
         IServiceProvider serviceProvider)
-        : IFollowTrendService
+        : IMonitorService
     {
         public async Task<MonitorResponse> MonitorVersionAsync(MonitorRequest request)
         {
-            request.FollowTrendVersion = "UltimateSmoother";
+            request.FollowTrendVersion = "ShareUltimateSmoother";
 
             var portfolioSettings = await portfolioSettingRepository.GetAsync(request.FollowTrendVersion);
 

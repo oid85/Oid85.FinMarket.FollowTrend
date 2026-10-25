@@ -28,7 +28,8 @@ public static class ServiceCollectionExtensions
                 .EnableServiceProviderCaching(false), poolSize: 32);
 
         services.AddScoped<IParameterRepository, ParameterRepository>();
-		services.AddScoped<IStrategyExecuteResultRepository, StrategyExecuteResultRepository>();
+        services.AddScoped<IStrategyExecuteResultRepository, StrategyExecuteResultRepository>();
+        services.AddScoped<IPortfolioSettingRepository, PortfolioSettingRepository>();
     }
 
     public static void ConfigureStorageApiClient(

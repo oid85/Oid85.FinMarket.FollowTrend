@@ -13,7 +13,7 @@ namespace Oid85.FinMarket.FollowTrend.WebHost.Controller;
 [Route("api/follow-trend")]
 [ApiController]
 public class FollowTrendController(
-    IFollowTrendService followTrendService,
+    IMonitorService monitorService,
     IBacktestService backtestService)
     : BaseController
 {
@@ -27,7 +27,7 @@ public class FollowTrendController(
     public Task<IActionResult> MonitorVersion(
         [FromBody] MonitorRequest request) =>
         GetResponseAsync(
-            () => followTrendService.MonitorVersionAsync(request),
+            () => monitorService.MonitorVersionAsync(request),
             result => new BaseResponse<MonitorResponse> { Result = result });
 
     /// <summary>
@@ -40,7 +40,7 @@ public class FollowTrendController(
     public Task<IActionResult> TerminalVersion(
         [FromBody] TerminalRequest request) =>
         GetResponseAsync(
-            () => followTrendService.TerminalAsync(request),
+            () => monitorService.TerminalAsync(request),
             result => new BaseResponse<TerminalResponse> { Result = result });
 
     /// <summary>
@@ -79,6 +79,6 @@ public class FollowTrendController(
     public Task<IActionResult> EditPortfolioTotalSumAsync(
         [FromBody] EditPortfolioTotalSumRequest request) =>
         GetResponseAsync(
-            () => followTrendService.EditPortfolioTotalSumAsync(request),
+            () => monitorService.EditPortfolioTotalSumAsync(request),
             result => new BaseResponse<EditPortfolioTotalSumResponse> { Result = result });
 }
