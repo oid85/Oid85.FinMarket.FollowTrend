@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Oid85.FinMarket.FollowTrend.Application.Interfaces.ApiClients;
 using Oid85.FinMarket.FollowTrend.Application.Interfaces.Repositories;
 using Oid85.FinMarket.FollowTrend.Application.Interfaces.Services;
 using Oid85.FinMarket.FollowTrend.Application.Models;
-using Oid85.FinMarket.FollowTrend.Core.Configuration;
 using Oid85.FinMarket.FollowTrend.Core.Models;
 using Oid85.FinMarket.FollowTrend.Core.Requests;
 using Oid85.FinMarket.FollowTrend.Core.Responses;
@@ -24,8 +22,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
     {
         public async Task<MonitorResponse> MonitorVersionAsync(MonitorRequest request)
         {
-            request.FollowTrendVersion = "ShareUltimateSmoother";
-
             var portfolioSettings = await portfolioSettingRepository.GetAsync(request.FollowTrendVersion);
 
             var tickers = portfolioSettings!.Tickers;

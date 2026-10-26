@@ -79,6 +79,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public DateOnly CurrentDate { get; set; } = DateOnly.MinValue;
 
+        public int CurrentWeekNumber { get; set; } = 0;
+
         public virtual void Execute()
         {
 

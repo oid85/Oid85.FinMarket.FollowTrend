@@ -10,19 +10,14 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
         : IDataService
     {
         private Dictionary<string, List<Candle>>? _candleData = null;
+        private Dictionary<string, List<Candle>>? _weekCandleData = null;
         private Dictionary<string, List<DateValue<double>>>? _ultimateSmootherData = null;
         private Dictionary<string, Instrument>? _instrumentData = null;
 
         public async Task<Dictionary<string, List<Candle>>> GetCandleDataAsync(List<string> tickers)
         {
             if (_candleData is not null)
-            {
-                foreach (var ticker in tickers)                
-                    if (!_candleData.ContainsKey(ticker))
-                        _candleData.Add(ticker, await GetCandlesByTickerAsync(ticker));
-                
                 return _candleData;
-            }
 
             _candleData = [];
 
@@ -32,19 +27,25 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             return _candleData;
         }
 
+        public async Task<Dictionary<string, List<Candle>>> GetWeekCandleDataAsync(List<string> tickers)
+        {
+            if (_weekCandleData is not null)
+                return _weekCandleData;
+
+            _weekCandleData = [];
+
+            var candleData = await GetCandleDataAsync(tickers);
+
+            foreach (var ticker in tickers.Distinct())
+                _weekCandleData.Add(ticker, GetWeekCandles(candleData[ticker]));
+
+            return _weekCandleData;
+        }
+
         public async Task<Dictionary<string, List<DateValue<double>>>> GetUltimateSmootherDataAsync(List<string> tickers, int period)
         {
             if (_ultimateSmootherData is not null)
-            {
-                foreach (var ticker in tickers)
-                    if (!_ultimateSmootherData.ContainsKey(ticker))
-                    {
-                        var candles = await GetCandlesByTickerAsync(ticker);
-                        _ultimateSmootherData.Add(ticker, GetUltimateSmootherValues(candles, period));
-                    }
-                
                 return _ultimateSmootherData;
-            }    
 
             _ultimateSmootherData = [];
 
@@ -59,8 +60,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
         public async Task<Dictionary<string, Instrument>> GetInstrumentDataAsync(List<string> tickers)
         {
             if (_instrumentData is not null)
-                if (tickers.All(x => _instrumentData.ContainsKey(x)))
-                    return _instrumentData;
+                return _instrumentData;
 
             _instrumentData = (await storageApiClient.GetInstrumentListAsync(new())).Result.Instruments
                 .Where(x => tickers.Distinct().Contains(x.Ticker))
@@ -146,6 +146,40 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             for (int i = 0; i < candles.Count; i++) candles[i].Index = i;
 
             return candles;
+        }
+
+        private static List<Candle> GetWeekCandles(List<Candle> candles)
+        {
+            if (candles is []) return [];
+            if (candles.Count < 7) return [];
+
+            var from = candles.First().Date;
+            var to = candles.Last().Date;
+
+            var weeks = DateUtils.GetWeeks(from, to);
+
+            var weekCandles = new List<Candle>();
+
+            foreach (var week in weeks)
+            {
+                var dailyCandles = candles
+                    .Where(x => x.Date >= week.WeekStartDay && x.Date <= week.WeekEndDay)
+                    .OrderBy(x => x.Date)
+                    .ToList();
+                
+                weekCandles.Add(
+                    new Candle
+                    {
+                        Open = dailyCandles.First().Open,
+                        Close = dailyCandles.Last().Close,
+                        High = dailyCandles.MaxBy(x => x.High)!.High,
+                        Low = dailyCandles.MinBy(x => x.Low)!.Low,
+                        Volume = dailyCandles.Sum(x => x.Volume),
+                        Date = dailyCandles.First().Date
+                    });
+            }
+
+            return weekCandles;
         }
 
         private static List<DateValue<double>> GetUltimateSmootherValues(List<Candle> candles, int period)

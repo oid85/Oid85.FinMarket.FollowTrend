@@ -16,5 +16,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IBacktestService, BacktestService>();
 
         services.AddKeyedTransient<Strategy, ShareUltimateSmootherStrategy>(nameof(ShareUltimateSmootherStrategy));
+        services.AddKeyedTransient<Strategy, EtfUltimateSmootherStrategy>(nameof(EtfUltimateSmootherStrategy));
     }
 }

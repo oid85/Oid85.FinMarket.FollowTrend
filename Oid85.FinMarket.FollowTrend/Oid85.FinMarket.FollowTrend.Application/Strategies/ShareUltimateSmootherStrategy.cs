@@ -16,7 +16,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
         public override void InitMonitorParameters()
         {
-            Period = 50;
+            Period = 30;
         }
 
         public override void SetSignalTickers() => SignalTickers = [.. GetSignalTickers(CurrentDate.AddDays(-1)), MON];

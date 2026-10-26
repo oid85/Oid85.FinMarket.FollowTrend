@@ -42,7 +42,7 @@ namespace Oid85.FinMarket.FollowTrend.Common.Utils
             // Обходим каждую неделю начиная с начальной даты
             while (startDate <= endDate)
             {
-                int weekNumber = GetIso8601WeekOfYear(startDate); // Номер недели ISO
+                int weekNumber = GetNumberWeekOfYear(startDate); // Номер недели ISO
 
                 // Определяем первый и последний дни недели
                 DayOfWeek firstDayOfWeek = CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
@@ -62,7 +62,7 @@ namespace Oid85.FinMarket.FollowTrend.Common.Utils
             return result;
         }
 
-        private static int GetIso8601WeekOfYear(DateTime dateTime)
+        public static int GetNumberWeekOfYear(DateTime dateTime)
         {
             DayOfWeek day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(dateTime);
 
