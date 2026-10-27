@@ -40,7 +40,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             strategy.To = to;
 
             var candleData = await dataService.GetCandleDataAsync(tickers);
-            candleData.TryAdd(MON, await dataService.GetMoneyEquivalentCandlesAsync(from, to));
             strategy.CandleData = candleData;
 
             var ultimateSmootherData = await dataService.GetUltimateSmootherDataAsync(tickers, strategy.Period);

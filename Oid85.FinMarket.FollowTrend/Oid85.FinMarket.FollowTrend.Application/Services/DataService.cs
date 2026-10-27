@@ -1,5 +1,6 @@
 ﻿using Oid85.FinMarket.FollowTrend.Application.Interfaces.ApiClients;
 using Oid85.FinMarket.FollowTrend.Application.Interfaces.Services;
+using Oid85.FinMarket.FollowTrend.Common.KnownConstants;
 using Oid85.FinMarket.FollowTrend.Common.Utils;
 using Oid85.FinMarket.FollowTrend.Core.Models;
 
@@ -23,6 +24,11 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
 
             foreach (var ticker in tickers.Distinct()) 
                 _candleData.Add(ticker, await GetCandlesByTickerAsync(ticker));
+
+            var from = DateOnly.FromDateTime(DateTime.Today.AddYears(-10));
+            var to = DateOnly.FromDateTime(DateTime.Today);
+
+            _candleData.TryAdd(KnownTickers.MON, await GetMoneyEquivalentCandlesAsync());
 
             return _candleData;
         }
@@ -77,8 +83,11 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             return _instrumentData;
         }
 
-        public async Task<List<Candle>> GetMoneyEquivalentCandlesAsync(DateOnly from, DateOnly to)
+        private static async Task<List<Candle>> GetMoneyEquivalentCandlesAsync()
         {
+            var from = DateOnly.FromDateTime(DateTime.Today.AddYears(-10));
+            var to = DateOnly.FromDateTime(DateTime.Today);
+
             var dates = DateUtils.GetDates(from.AddDays(-100), to);
 
             double price = 100.0;

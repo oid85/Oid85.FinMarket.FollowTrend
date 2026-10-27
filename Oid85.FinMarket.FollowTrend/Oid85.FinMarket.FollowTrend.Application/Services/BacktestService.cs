@@ -36,7 +36,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             var followTrendSettings = options.Value;
 
             _candleData = await dataService.GetCandleDataAsync(_tickers);
-            _candleData.TryAdd(KnownTickers.MON, await dataService.GetMoneyEquivalentCandlesAsync(_from, _to));
             _instrumentData = await dataService.GetInstrumentDataAsync(_tickers);
 
             await strategyExecuteResultRepository.DeleteAsync();
