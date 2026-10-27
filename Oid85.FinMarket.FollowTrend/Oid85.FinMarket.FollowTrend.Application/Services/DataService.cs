@@ -163,7 +163,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             foreach (var week in weeks)
             {
                 var dailyCandles = candles
-                    .Where(x => x.Date >= week.WeekStartDay && x.Date <= week.WeekEndDay)
+                    .Where(x => x.Date >= week.StartDate && x.Date <= week.EndDate)
                     .OrderBy(x => x.Date)
                     .ToList();
                 

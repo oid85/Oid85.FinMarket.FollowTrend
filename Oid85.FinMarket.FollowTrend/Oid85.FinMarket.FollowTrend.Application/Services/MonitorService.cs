@@ -3,6 +3,7 @@ using Oid85.FinMarket.FollowTrend.Application.Interfaces.ApiClients;
 using Oid85.FinMarket.FollowTrend.Application.Interfaces.Repositories;
 using Oid85.FinMarket.FollowTrend.Application.Interfaces.Services;
 using Oid85.FinMarket.FollowTrend.Application.Models;
+using Oid85.FinMarket.FollowTrend.Common.Utils;
 using Oid85.FinMarket.FollowTrend.Core.Models;
 using Oid85.FinMarket.FollowTrend.Core.Requests;
 using Oid85.FinMarket.FollowTrend.Core.Responses;

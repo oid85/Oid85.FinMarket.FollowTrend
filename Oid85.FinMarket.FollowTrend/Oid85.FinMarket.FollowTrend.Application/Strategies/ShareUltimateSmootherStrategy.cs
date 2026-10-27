@@ -23,6 +23,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
         public override void Execute()
         {
+            CountTickers = Convert.ToInt32(Math.Truncate(Tickers.Count * 0.618));
+
             foreach (var date in Dates)
             {
                 CurrentDate = date;
@@ -50,20 +52,26 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
             var tickers = UltimateSmootherData
                 .Where(x => x.Key != MON)
-                .ToDictionary(
-                    k => k.Key,
-                    v => GetSignal([.. v.Value.Where(x => x.Date >= from && x.Date <= to)]))
-                .Where(x => x.Value == true)
+                .ToDictionary(k => k.Key, v => GetSignalDelta([.. v.Value.Where(x => x.Date >= from && x.Date <= to)]))
+                .Where(x => x.Value.Signal == true)
+                .OrderByDescending(x => x.Value.Delta)
+                .Take(CountTickers)
                 .Select(x => x.Key)
                 .ToList();
 
             return tickers ?? [];
         }
 
-        public static bool GetSignal(List<DateValue<double>> values) => 
-            values.Count >= 5 &&
+        public static (bool Signal, double Delta) GetSignalDelta(List<DateValue<double>> values)
+        {
+            bool signal = values.Count >= 5 &&
             values[^4].Value < values[^3].Value &&
             values[^3].Value < values[^2].Value &&
             values[^2].Value < values[^1].Value;
+
+            double delta = !signal ? 0.0 : Math.Abs((values[^1].Value - values[^4].Value) / values[^4].Value * 100.0);
+
+            return (signal, delta);
+        }
     }
 }

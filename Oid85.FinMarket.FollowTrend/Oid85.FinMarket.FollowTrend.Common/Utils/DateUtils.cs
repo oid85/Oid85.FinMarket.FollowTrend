@@ -32,9 +32,13 @@ namespace Oid85.FinMarket.FollowTrend.Common.Utils
             return dates;
         }
 
-        public static List<(int WeekNumber, DateOnly WeekStartDay, DateOnly WeekEndDay)> GetWeeks(DateOnly from, DateOnly to)
+        public static List<(DateOnly StartDate, DateOnly EndDate)> GetWeeks(DateOnly from, DateOnly to)
         {
-            var result = new List<(int WeekNumber, DateOnly WeekStartDay, DateOnly WeekEndDay)>();
+            // Для формирования полных недель
+            var shiftDays = to.DayOfWeek.GetHashCode();
+            to = to.AddDays(-1 * shiftDays);
+            
+            var result = new List<(DateOnly StartDate, DateOnly EndDate)>();
 
             var startDate = from.ToDateTime(TimeOnly.MinValue);
             var endDate = to.ToDateTime(TimeOnly.MinValue);
@@ -42,14 +46,12 @@ namespace Oid85.FinMarket.FollowTrend.Common.Utils
             // Обходим каждую неделю начиная с начальной даты
             while (startDate <= endDate)
             {
-                int weekNumber = GetNumberWeekOfYear(startDate); // Номер недели ISO
-
                 // Определяем первый и последний дни недели
                 DayOfWeek firstDayOfWeek = CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
                 var monday = startDate.AddDays((firstDayOfWeek - startDate.DayOfWeek + 7) % 7);
                 var sunday = monday.AddDays(6);
 
-                result.Add(new(weekNumber, DateOnly.FromDateTime(monday), DateOnly.FromDateTime(sunday)));
+                result.Add(new(DateOnly.FromDateTime(monday), DateOnly.FromDateTime(sunday)));
 
                 // Проверяем, входит ли воскресенье в диапазон дат
                 if (sunday > endDate)
@@ -60,16 +62,6 @@ namespace Oid85.FinMarket.FollowTrend.Common.Utils
             }
 
             return result;
-        }
-
-        public static int GetNumberWeekOfYear(DateTime dateTime)
-        {
-            DayOfWeek day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(dateTime);
-
-            if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
-                dateTime = dateTime.AddDays(3);
-
-            return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(dateTime, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
         }
     }
 }

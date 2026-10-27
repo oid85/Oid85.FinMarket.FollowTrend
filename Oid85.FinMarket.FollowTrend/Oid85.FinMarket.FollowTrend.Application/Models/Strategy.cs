@@ -29,6 +29,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public List<DateOnly> Dates => DateUtils.GetDates(From, To);
 
+        public List<(DateOnly StartDate, DateOnly EndDate)> Weeks => DateUtils.GetWeeks(From, To);
+
         public double TotalSumLife { get; set; } = 0.0;
 
         public double StartMoneySum { get; set; } = 0.0;
