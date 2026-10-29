@@ -19,5 +19,7 @@ public static class ServiceCollectionExtensions
         services.AddKeyedTransient<Strategy, EtfUltimateSmootherStrategy>(nameof(EtfUltimateSmootherStrategy));
         services.AddKeyedTransient<Strategy, FutureUltimateSmootherStrategy>(nameof(FutureUltimateSmootherStrategy));
         services.AddKeyedTransient<Strategy, ShareSupertrendStrategy>(nameof(ShareSupertrendStrategy));
+		services.AddKeyedTransient<Strategy, EtfSupertrendStrategy>(nameof(EtfSupertrendStrategy));
+		services.AddKeyedTransient<Strategy, FutureSupertrendStrategy>(nameof(FutureSupertrendStrategy));
     }
 }
