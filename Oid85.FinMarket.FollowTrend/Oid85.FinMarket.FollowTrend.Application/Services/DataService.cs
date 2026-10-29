@@ -1,8 +1,11 @@
 ﻿using Oid85.FinMarket.FollowTrend.Application.Interfaces.ApiClients;
 using Oid85.FinMarket.FollowTrend.Application.Interfaces.Services;
+using Oid85.FinMarket.FollowTrend.Application.Mapping;
 using Oid85.FinMarket.FollowTrend.Common.KnownConstants;
 using Oid85.FinMarket.FollowTrend.Common.Utils;
 using Oid85.FinMarket.FollowTrend.Core.Models;
+using Skender.Stock.Indicators;
+using static Oid85.FinMarket.FollowTrend.Common.KnownConstants.KnownTickers;
 
 namespace Oid85.FinMarket.FollowTrend.Application.Services
 {
@@ -13,6 +16,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
         private Dictionary<string, List<Candle>>? _candleData = null;
         private Dictionary<string, List<Candle>>? _weekCandleData = null;
         private Dictionary<string, List<DateValue<double>>>? _ultimateSmootherData = null;
+        private Dictionary<string, List<DateValue<double>>>? _supertrendData = null;
         private Dictionary<string, Instrument>? _instrumentData = null;
 
         public async Task<Dictionary<string, List<Candle>>> GetCandleDataAsync(List<string> tickers)
@@ -25,10 +29,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             foreach (var ticker in tickers.Distinct()) 
                 _candleData.Add(ticker, await GetCandlesByTickerAsync(ticker));
 
-            var from = DateOnly.FromDateTime(DateTime.Today.AddYears(-10));
-            var to = DateOnly.FromDateTime(DateTime.Today);
-
-            _candleData.TryAdd(KnownTickers.MON, await GetMoneyEquivalentCandlesAsync());
+            _candleData.TryAdd(MON, await GetMoneyEquivalentCandlesAsync());
 
             return _candleData;
         }
@@ -61,6 +62,30 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
                 _ultimateSmootherData.Add(ticker, GetUltimateSmootherValues(candleData[ticker], period));
 
             return _ultimateSmootherData;
+        }
+
+        public async Task<Dictionary<string, List<DateValue<double>>>> GetSupertrendDataAsync(List<string> tickers, int period, double multiplier)
+        {
+            if (_supertrendData is not null)
+                return _supertrendData;
+
+            _supertrendData = [];
+
+            var candleData = await GetCandleDataAsync(tickers);
+
+            foreach (var ticker in tickers.Distinct())
+                _supertrendData.Add(
+                    ticker,
+                    [.. candleData[ticker]
+                    .Select(ApplicationMapper.Map)
+                    .GetSuperTrend(period, multiplier)
+                    .Select(x => new DateValue<double>
+                    {
+                        Date = DateOnly.FromDateTime(x.Date),
+                        Value = x.SuperTrend.HasValue ? Convert.ToDouble(x.SuperTrend.Value) : 0.0
+                    })]);
+
+            return _supertrendData;
         }
 
         public async Task<Dictionary<string, Instrument>> GetInstrumentDataAsync(List<string> tickers)

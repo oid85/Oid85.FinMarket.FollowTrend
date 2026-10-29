@@ -8,14 +8,16 @@ using static Oid85.FinMarket.FollowTrend.Common.KnownConstants.KnownTickers;
 namespace Oid85.FinMarket.FollowTrend.Application.Models
 {
     public class Strategy
-    {        
+    {
         #region Блок параметров торгового алгоритма
 
-        public int Period { get; set; }
+        public int Period { get; set; } = 10;
 
-        public int CountTickers { get; set; }
+        public double Multiplier { get; set; } = 2.5;
 
-        public List<int> RebalanceDays { get; set; } = [];
+        public int CountTickers { get; set; } = 10;
+
+        public List<int> RebalanceDays { get; set; } = [1, 11, 21];
 
         #endregion
 
@@ -44,6 +46,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
         public Dictionary<string, List<Candle>> CandleData { get; set; } = [];
 
         public Dictionary<string, List<DateValue<double>>> UltimateSmootherData { get; set; } = [];
+
+        public Dictionary<string, List<DateValue<double>>> SupertrendData { get; set; } = [];
 
         public List<FollowTrendMessage> Messages { get; set; } = [];
 
@@ -88,7 +92,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         }
 
-        public virtual void InitMonitorParameters()
+        public virtual void InitParameters()
         {
 
         }

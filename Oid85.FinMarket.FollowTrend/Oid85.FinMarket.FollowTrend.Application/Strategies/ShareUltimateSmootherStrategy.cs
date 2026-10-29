@@ -9,12 +9,12 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
         public override List<string> GetDescription()
         {
             return [
-                "Версия ShareUltimateSmoother",
+                "ShareUltimateSmoother",
                 $"Период: {Period} дней"
-                ];
+            ];
         }
 
-        public override void InitMonitorParameters()
+        public override void InitParameters()
         {
             Period = 30;
         }
