@@ -52,8 +52,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
             foreach (var (ticker, _) in CandleData.Where(x => x.Key != MON))
             {
-                var candle = CandleData[ticker].Find(x => x.Date == date);
-                var supertrend = SupertrendData[ticker].Find(x => x.Date == date);
+                var candle = CandleData[ticker].FindLast(x => x.Date <= date);
+                var supertrend = SupertrendData[ticker].FindLast(x => x.Date <= date);
 
                 if (candle is null) continue;
                 if (supertrend is null) continue;
