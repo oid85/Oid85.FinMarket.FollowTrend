@@ -45,8 +45,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             var ultimateSmootherData = await dataService.GetUltimateSmootherDataAsync(tickers, strategy.Period);
             strategy.UltimateSmootherData = ultimateSmootherData;
 
-            var supertrendData = await dataService.GetSupertrendDataAsync(tickers, strategy.Period, strategy.Multiplier);
-            strategy.SupertrendData = supertrendData;
+            var supertrendData = await dataService.GetSupertrendLowerBandDataAsync(tickers, strategy.Period, strategy.Multiplier);
+            strategy.SupertrendLowerBandData = supertrendData;
 
             var instrumentData = await dataService.GetInstrumentDataAsync(tickers);
             strategy.PositionData = tickers.ToDictionary(k => k, v => new PositionData { Ticker = v, Weight = 0, Lot = instrumentData[v].Lot ?? 1 });

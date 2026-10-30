@@ -45,20 +45,15 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
         public List<string> GetSignalTickers(DateOnly date)
         {
-            if (SupertrendData is null) return [];
-            if (CandleData is null) return [];            
+            if (SupertrendLowerBandData is null) return [];
 
             List<string> tickers = [];
 
-            foreach (var (ticker, _) in CandleData.Where(x => x.Key != MON))
+            foreach (var (ticker, _) in SupertrendLowerBandData.Where(x => x.Key != MON))
             {
-                var candle = CandleData[ticker].FindLast(x => x.Date <= date);
-                var supertrend = SupertrendData[ticker].FindLast(x => x.Date <= date);
-
-                if (candle is null) continue;
-                if (supertrend is null) continue;
-
-                if (supertrend.Value > candle.Close)
+                var supertrendLowerBand = SupertrendLowerBandData[ticker].FindLast(x => x.Date <= date);
+                
+                if (supertrendLowerBand is not null) 
                     tickers.Add(ticker);
             }
 

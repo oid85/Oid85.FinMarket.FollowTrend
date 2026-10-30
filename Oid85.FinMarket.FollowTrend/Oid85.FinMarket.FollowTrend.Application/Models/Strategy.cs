@@ -47,7 +47,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public Dictionary<string, List<DateValue<double>>> UltimateSmootherData { get; set; } = [];
 
-        public Dictionary<string, List<DateValue<double>>> SupertrendData { get; set; } = [];
+        public Dictionary<string, List<DateValue<double?>>> SupertrendLowerBandData { get; set; } = [];
 
         public List<FollowTrendMessage> Messages { get; set; } = [];
 

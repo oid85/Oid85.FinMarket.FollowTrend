@@ -16,7 +16,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
         private Dictionary<string, List<Candle>>? _candleData = null;
         private Dictionary<string, List<Candle>>? _weekCandleData = null;
         private Dictionary<string, List<DateValue<double>>>? _ultimateSmootherData = null;
-        private Dictionary<string, List<DateValue<double>>>? _supertrendData = null;
+        private Dictionary<string, List<DateValue<double?>>>? _supertrendLowerBandData = null;
         private Dictionary<string, Instrument>? _instrumentData = null;
 
         public async Task<Dictionary<string, List<Candle>>> GetCandleDataAsync(List<string> tickers)
@@ -64,28 +64,28 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             return _ultimateSmootherData;
         }
 
-        public async Task<Dictionary<string, List<DateValue<double>>>> GetSupertrendDataAsync(List<string> tickers, int period, double multiplier)
+        public async Task<Dictionary<string, List<DateValue<double?>>>> GetSupertrendLowerBandDataAsync(List<string> tickers, int period, double multiplier)
         {
-            if (_supertrendData is not null)
-                return _supertrendData;
+            if (_supertrendLowerBandData is not null)
+                return _supertrendLowerBandData;
 
-            _supertrendData = [];
+            _supertrendLowerBandData = [];
 
             var candleData = await GetCandleDataAsync(tickers);
 
             foreach (var ticker in tickers.Distinct())
-                _supertrendData.Add(
+                _supertrendLowerBandData.Add(
                     ticker,
                     [.. candleData[ticker]
                     .Select(ApplicationMapper.Map)
                     .GetSuperTrend(period, multiplier)
-                    .Select(x => new DateValue<double>
+                    .Select(x => new DateValue<double?>
                     {
                         Date = DateOnly.FromDateTime(x.Date),
-                        Value = x.SuperTrend.HasValue ? Convert.ToDouble(x.SuperTrend.Value) : 0.0
+                        Value = x.LowerBand.HasValue ? Convert.ToDouble(x.LowerBand.Value) : null
                     })]);
 
-            return _supertrendData;
+            return _supertrendLowerBandData;
         }
 
         public async Task<Dictionary<string, Instrument>> GetInstrumentDataAsync(List<string> tickers)
