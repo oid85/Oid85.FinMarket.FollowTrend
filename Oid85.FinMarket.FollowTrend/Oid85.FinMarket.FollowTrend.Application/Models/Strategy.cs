@@ -45,7 +45,11 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public Dictionary<string, List<Candle>> CandleData { get; set; } = [];
 
+        public Dictionary<string, List<Candle>> WeekCandleData { get; set; } = [];
+
         public Dictionary<string, List<DateValue<double>>> UltimateSmootherData { get; set; } = [];
+
+        public Dictionary<string, List<DateValue<double>>> WeekUltimateSmootherData { get; set; } = [];
 
         public Dictionary<string, List<DateValue<double?>>> SupertrendLowerBandData { get; set; } = [];
 
@@ -103,6 +107,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public Candle? GetCandle(string ticker) => CandleData[ticker].FindLast(x => x.Date <= CurrentDate.AddDays(-1));
 
+        public Candle? GetWeekCandle(string ticker) => WeekCandleData[ticker].FindLast(x => x.Date <= CurrentDate.AddDays(-1));
+
         public virtual void SetSignalTickers()
         {
 
@@ -130,6 +136,21 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
                 PositionData[ticker].Candle.Low = candle.Low;
                 PositionData[ticker].Candle.Volume = candle.Volume;
             }                
+        }
+
+        public void UpdateWeekCandles()
+        {
+            foreach (var ticker in Tickers)
+            {
+                var candle = GetWeekCandle(ticker) ?? new Candle();
+
+                PositionData[ticker].Candle.Date = candle.Date;
+                PositionData[ticker].Candle.Open = candle.Open;
+                PositionData[ticker].Candle.Close = candle.Close;
+                PositionData[ticker].Candle.High = candle.High;
+                PositionData[ticker].Candle.Low = candle.Low;
+                PositionData[ticker].Candle.Volume = candle.Volume;
+            }
         }
 
         public void SyncPositions() => TradingProcessor.SyncPositions(PositionData.ToDictionary(k => k.Key, v => v.Value.Weight), true);

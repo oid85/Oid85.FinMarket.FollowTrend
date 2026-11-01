@@ -35,8 +35,8 @@ namespace Oid85.FinMarket.FollowTrend.Common.Utils
         public static List<(DateOnly StartDate, DateOnly EndDate)> GetWeeks(DateOnly from, DateOnly to)
         {
             // Для формирования полных недель
-            var shiftDays = to.DayOfWeek.GetHashCode();
-            to = to.AddDays(-1 * shiftDays);
+            // var shiftDays = to.DayOfWeek.GetHashCode();
+            // to = to.AddDays(-1 * shiftDays);
             
             var result = new List<(DateOnly StartDate, DateOnly EndDate)>();
 

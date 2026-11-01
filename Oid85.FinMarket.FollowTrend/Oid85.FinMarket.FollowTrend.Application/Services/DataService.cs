@@ -16,6 +16,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
         private Dictionary<string, List<Candle>>? _candleData = null;
         private Dictionary<string, List<Candle>>? _weekCandleData = null;
         private Dictionary<string, List<DateValue<double>>>? _ultimateSmootherData = null;
+        private Dictionary<string, List<DateValue<double>>>? _weekUltimateSmootherData = null;
         private Dictionary<string, List<DateValue<double?>>>? _supertrendLowerBandData = null;
         private Dictionary<string, Instrument>? _instrumentData = null;
 
@@ -62,6 +63,21 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
                 _ultimateSmootherData.Add(ticker, GetUltimateSmootherValues(candleData[ticker], period));
 
             return _ultimateSmootherData;
+        }
+
+        public async Task<Dictionary<string, List<DateValue<double>>>> GetWeekUltimateSmootherDataAsync(List<string> tickers, int period)
+        {
+            if (_weekUltimateSmootherData is not null)
+                return _weekUltimateSmootherData;
+
+            _weekUltimateSmootherData = [];
+
+            var candleData = await GetWeekCandleDataAsync(tickers);
+
+            foreach (var ticker in tickers.Distinct())
+                _weekUltimateSmootherData.Add(ticker, GetUltimateSmootherValues(candleData[ticker], period));
+
+            return _weekUltimateSmootherData;
         }
 
         public async Task<Dictionary<string, List<DateValue<double?>>>> GetSupertrendLowerBandDataAsync(List<string> tickers, int period, double multiplier)
@@ -200,7 +216,9 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
                     .Where(x => x.Date >= week.StartDate && x.Date <= week.EndDate)
                     .OrderBy(x => x.Date)
                     .ToList();
-                
+
+                if (dailyCandles is []) continue;
+
                 weekCandles.Add(
                     new Candle
                     {
@@ -209,7 +227,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
                         High = dailyCandles.MaxBy(x => x.High)!.High,
                         Low = dailyCandles.MinBy(x => x.Low)!.Low,
                         Volume = dailyCandles.Sum(x => x.Volume),
-                        Date = dailyCandles.First().Date
+                        Date = week.StartDate
                     });
             }
 

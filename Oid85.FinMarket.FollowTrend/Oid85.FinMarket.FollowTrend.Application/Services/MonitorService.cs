@@ -23,6 +23,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
     {
         public async Task<MonitorResponse> MonitorVersionAsync(MonitorRequest request)
         {
+            request.FollowTrendVersion = "EtfWeekUltimateSmoother";
+
             var portfolioSettings = await portfolioSettingRepository.GetAsync(request.FollowTrendVersion);
 
             var tickers = portfolioSettings!.Tickers;
@@ -42,8 +44,14 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             var candleData = await dataService.GetCandleDataAsync(tickers);
             strategy.CandleData = candleData;
 
+            var weekCandleData = await dataService.GetWeekCandleDataAsync(tickers);
+            strategy.WeekCandleData = candleData;
+
             var ultimateSmootherData = await dataService.GetUltimateSmootherDataAsync(tickers, strategy.Period);
             strategy.UltimateSmootherData = ultimateSmootherData;
+
+            var weekUltimateSmootherData = await dataService.GetWeekUltimateSmootherDataAsync(tickers, strategy.Period);
+            strategy.WeekUltimateSmootherData = weekUltimateSmootherData;
 
             var supertrendData = await dataService.GetSupertrendLowerBandDataAsync(tickers, strategy.Period, strategy.Multiplier);
             strategy.SupertrendLowerBandData = supertrendData;
