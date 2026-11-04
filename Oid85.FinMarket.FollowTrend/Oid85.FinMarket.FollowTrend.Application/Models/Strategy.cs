@@ -107,7 +107,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public Candle? GetCandle(string ticker) => CandleData[ticker].FindLast(x => x.Date <= CurrentDate.AddDays(-1));
 
-        public Candle? GetWeekCandle(string ticker) => WeekCandleData[ticker].FindLast(x => x.Date <= CurrentDate.AddDays(-1));
+        public Candle? GetWeekCandle(string ticker) => WeekCandleData[ticker].FindLast(x => x.Date <= CurrentDate.AddDays(-7));
 
         public virtual void SetSignalTickers()
         {
@@ -122,6 +122,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
         }
 
         public void UpdatePrices() => TradingProcessor.UpdatePrices();
+
+        public void UpdateWeekPrices() => TradingProcessor.UpdateWeekPrices();
 
         public void UpdateCandles()
         {

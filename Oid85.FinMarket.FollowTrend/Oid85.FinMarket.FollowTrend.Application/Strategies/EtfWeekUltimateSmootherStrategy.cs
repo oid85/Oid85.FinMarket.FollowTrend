@@ -10,7 +10,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
         {
             return [
                 "EtfWeekUltimateSmoother",
-                $"Период: {Period} дней"
+                $"Период: {Period} недель"
             ];
         }
 
@@ -19,7 +19,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
             Period = 10;
         }
 
-        public override void SetSignalTickers() => SignalTickers = [.. GetSignalTickers(CurrentDate.AddDays(-1)), MON];
+        public override void SetSignalTickers() => SignalTickers = [.. GetSignalTickers(CurrentDate.AddDays(-7)), MON];
 
         public override void Execute()
         {
@@ -28,7 +28,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
                 CurrentDate = week.StartDate;
                 TradingProcessor.CurrentDate = week.StartDate;
 
-                UpdatePrices();
+                UpdateWeekPrices();
                 UpdateWeekCandles();
 
                 ClearMessages();

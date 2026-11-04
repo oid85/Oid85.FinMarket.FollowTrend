@@ -269,6 +269,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
                         });
 
             return result;
-        }
+        }	
     }
 }
