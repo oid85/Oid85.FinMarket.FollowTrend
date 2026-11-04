@@ -42,7 +42,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
         }
 
         public List<string> GetSignalTickers(DateOnly date)
-        {
+        {            
             if (UltimateSmootherData is null) return [];
 
             DateOnly from = date.AddDays(-10);
@@ -62,8 +62,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
         public static bool GetSignal(List<DateValue<double>> values) => 
             values.Count >= 5 &&
-            values[^4].Value < values[^3].Value &&
-            values[^3].Value < values[^2].Value &&
             values[^2].Value < values[^1].Value;
     }
 }
