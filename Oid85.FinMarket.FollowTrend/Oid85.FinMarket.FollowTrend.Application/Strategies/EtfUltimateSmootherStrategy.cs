@@ -16,6 +16,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
         public override void InitParameters()
         {
+            Timeframe = "Day";
             Period = 30;
         }
 

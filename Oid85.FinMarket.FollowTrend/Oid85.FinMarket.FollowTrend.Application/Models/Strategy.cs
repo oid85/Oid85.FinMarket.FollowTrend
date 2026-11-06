@@ -11,13 +11,15 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
     {
         #region Блок параметров торгового алгоритма
 
-        public int Period { get; set; } = 10;
+        public string Timeframe { get; set; } = string.Empty;
 
-        public double Multiplier { get; set; } = 2.5;
+        public int Period { get; set; }
 
-        public int CountTickers { get; set; } = 10;
+        public double Multiplier { get; set; }
 
-        public List<int> RebalanceDays { get; set; } = [1, 11, 21];
+        public int CountTickers { get; set; }
+
+        public List<int> RebalanceDays { get; set; } = [];
 
         #endregion
 

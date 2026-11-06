@@ -16,6 +16,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
         public override void InitParameters()
         {
+            Timeframe = "Week";
             Period = 10;
         }
 
@@ -43,12 +44,12 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
         public List<string> GetSignalTickers(DateOnly date)
         {            
-            if (UltimateSmootherData is null) return [];
+            if (WeekUltimateSmootherData is null) return [];
 
-            DateOnly from = date.AddDays(-10);
+            DateOnly from = date.AddMonths(-2);
             DateOnly to = date;
 
-            var tickers = UltimateSmootherData
+            var tickers = WeekUltimateSmootherData
                 .Where(x => x.Key != MON)
                 .ToDictionary(
                     k => k.Key,

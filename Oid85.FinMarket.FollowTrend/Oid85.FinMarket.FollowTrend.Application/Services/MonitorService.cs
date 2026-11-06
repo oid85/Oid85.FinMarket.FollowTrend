@@ -40,21 +40,13 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
 
             strategy.From = from;
             strategy.To = to;
+            
+            strategy.CandleData = await dataService.GetCandleDataAsync(tickers);
+            strategy.UltimateSmootherData = await dataService.GetUltimateSmootherDataAsync(tickers, strategy.Period);
+            strategy.SupertrendLowerBandData = await dataService.GetSupertrendLowerBandDataAsync(tickers, strategy.Period, strategy.Multiplier);
 
-            var candleData = await dataService.GetCandleDataAsync(tickers);
-            strategy.CandleData = candleData;
-
-            var weekCandleData = await dataService.GetWeekCandleDataAsync(tickers);
-            strategy.WeekCandleData = candleData;
-
-            var ultimateSmootherData = await dataService.GetUltimateSmootherDataAsync(tickers, strategy.Period);
-            strategy.UltimateSmootherData = ultimateSmootherData;
-
-            var weekUltimateSmootherData = await dataService.GetWeekUltimateSmootherDataAsync(tickers, strategy.Period);
-            strategy.WeekUltimateSmootherData = weekUltimateSmootherData;
-
-            var supertrendData = await dataService.GetSupertrendLowerBandDataAsync(tickers, strategy.Period, strategy.Multiplier);
-            strategy.SupertrendLowerBandData = supertrendData;
+            strategy.WeekCandleData = await dataService.GetWeekCandleDataAsync(tickers);                               
+            strategy.WeekUltimateSmootherData = await dataService.GetWeekUltimateSmootherDataAsync(tickers, strategy.Period);            
 
             var instrumentData = await dataService.GetInstrumentDataAsync(tickers);
             strategy.PositionData = tickers.ToDictionary(k => k, v => new PositionData { Ticker = v, Weight = 0, Lot = instrumentData[v].Lot ?? 1 });
@@ -64,7 +56,12 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
 
             strategy.TradingProcessor = new TradingProcessor
             {
-                CandleData = candleData,
+                CandleData = strategy.Timeframe switch
+                {
+                    "Day" => strategy.CandleData,
+                    "Week" => strategy.WeekCandleData,
+                    _ => []
+                },
                 InstrumentData = instrumentData,
                 Tickers = tickers,
                 StartMoneySum = portfolioSettings.MoneySum
