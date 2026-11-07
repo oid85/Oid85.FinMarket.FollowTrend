@@ -35,10 +35,19 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public List<(DateOnly StartDate, DateOnly EndDate)> Weeks => DateUtils.GetWeeks(From, To);
 
+        /// <summary>
+        /// Актуальная сумма. Используется для расчета текущих позиций
+        /// </summary>
         public double TotalSumLife { get; set; } = 0.0;
 
+        /// <summary>
+        /// Начальная сумма капитала. Используется в бэктесте
+        /// </summary>
         public double StartMoneySum { get; set; } = 0.0;
 
+        /// <summary>
+        /// Конечная сумма капитала. Используется в бэктесте
+        /// </summary>
         public double EndMoneySum => EquitySeries.Data is [] ? StartMoneySum : EquitySeries.Data.Last().Value ?? StartMoneySum;
 
         public TradingProcessor TradingProcessor { get; set; } = new();
@@ -47,13 +56,15 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public Dictionary<string, List<Candle>> CandleData { get; set; } = [];
 
-        public Dictionary<string, List<Candle>> WeekCandleData { get; set; } = [];
-
         public Dictionary<string, List<DateValue<double>>> UltimateSmootherData { get; set; } = [];
+
+        public Dictionary<string, List<DateValue<double?>>> SupertrendLowerBandData { get; set; } = [];
+
+        public Dictionary<string, List<Candle>> WeekCandleData { get; set; } = [];
 
         public Dictionary<string, List<DateValue<double>>> WeekUltimateSmootherData { get; set; } = [];
 
-        public Dictionary<string, List<DateValue<double?>>> SupertrendLowerBandData { get; set; } = [];
+        public Dictionary<string, List<DateValue<double?>>> WeekSupertrendLowerBandData { get; set; } = [];
 
         public List<FollowTrendMessage> Messages { get; set; } = [];
 
@@ -74,7 +85,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
         public double RecoveryFactor => MaxDrawdown == 0.0 ? double.PositiveInfinity : Math.Abs(NetProfit / MaxDrawdown).RoundTo(2);
 
         public double NetProfit => EndMoneySum > StartMoneySum ? (EndMoneySum - StartMoneySum).RoundTo(2) : 0.0;
-        
+
         public double TotalReturn => EndMoneySum > StartMoneySum ? ((EndMoneySum - StartMoneySum) / StartMoneySum * 100.0).RoundTo(2) : 0.0;
 
         public double AnnualYieldReturn => EndMoneySum > StartMoneySum ? (TotalReturn / ((To.DayNumber - From.DayNumber) / 365.0)).RoundTo(2) : 0.0;
@@ -89,9 +100,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public double WeightSum => PositionData.Values.Sum(x => x.Weight);
 
-        public DateOnly CurrentDate { get; set; } = DateOnly.MinValue;
-
-        public int CurrentWeekNumber { get; set; } = 0;
+        public DateOnly CurrentDate { get; set; } = DateOnly.MinValue;        
 
         public virtual void Execute()
         {
@@ -139,7 +148,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
                 PositionData[ticker].Candle.High = candle.High;
                 PositionData[ticker].Candle.Low = candle.Low;
                 PositionData[ticker].Candle.Volume = candle.Volume;
-            }                
+            }
         }
 
         public void UpdateWeekCandles()
@@ -159,7 +168,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public void SyncPositions() => TradingProcessor.SyncPositions(PositionData.ToDictionary(k => k.Key, v => v.Value.Weight), true);
 
-        public void UpdateEquitySeries() => 
+        public void UpdateEquitySeries() =>
             EquitySeries.Data.Add(
                 new()
                 {
@@ -167,7 +176,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
                     Value = TradingProcessor.TotalSum.RoundTo(2)
                 });
 
-        public void UpdateMoneySeries() => 
+        public void UpdateMoneySeries() =>
             MoneySeries.Data.Add(
                 new()
                 {
@@ -195,7 +204,13 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
             foreach (var ticker in PortfolioTickers)
             {
-                var candle = CandleData[ticker].FindLast(x => x.Date <= Dates.Last());
+                var candle = Timeframe switch
+                {
+                    KnownTimeframes.Day => CandleData[ticker].FindLast(x => x.Date < Dates[^1]),
+                    KnownTimeframes.Week => WeekCandleData[ticker].FindLast(x => x.Date < Weeks[^1].StartDate),
+                    _ => null
+                };
+
                 double tickerCost = TotalSumLife / WeightSum * PositionData[ticker].Weight.RoundTo(2);
                 int tickerSize = Convert.ToInt32(Math.Truncate(tickerCost / candle!.Close / PositionData[ticker].Lot) * PositionData[ticker].Lot);
                 double entryPrice = ticker == MON ? 0.0 : PositionData[ticker].EntryPrice;
@@ -217,18 +232,35 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
                     .. currentPositions.Where(x => x.Ticker != MON).OrderBy(x => x.Ticker),
                     .. currentPositions.Where(x => x.Ticker == MON)
                     ];
-
-            int number = 1;
-            foreach (var currentPosition in orderedCurrentPositions)
-                currentPosition.Number = number++;
+            
+            for (int i = 0; i < orderedCurrentPositions.Count; i++)
+                orderedCurrentPositions[i].Number = i + 1;
 
             return orderedCurrentPositions;
         }
 
-        public List<DiagramSeries> GetPriceDynamicSeries() => DiagramSeriesHelper.GetPriceDynamicSeries(PortfolioTickers, CandleData, Period);
+        public List<DiagramSeries> GetPriceDynamicSeries() =>
+            Timeframe switch
+            {
+                KnownTimeframes.Day => DiagramSeriesHelper.GetPriceDynamicSeries(PortfolioTickers, CandleData, Period),
+                KnownTimeframes.Week => DiagramSeriesHelper.GetPriceDynamicSeries(PortfolioTickers, WeekCandleData, Period),
+                _ => []
+            };
 
-        public List<DiagramSeries> GetPriceSeries() => DiagramSeriesHelper.GetPriceSeries(PortfolioTickers, CandleData);
+        public List<DiagramSeries> GetPriceSeries() =>
+            Timeframe switch
+            {
+                KnownTimeframes.Day => DiagramSeriesHelper.GetPriceSeries(PortfolioTickers, CandleData),
+                KnownTimeframes.Week => DiagramSeriesHelper.GetPriceSeries(PortfolioTickers, WeekCandleData),
+                _ => []
+            };
 
-        public List<List<DiagramSeries>> GetPriceWithEntryPriceSeries() => DiagramSeriesHelper.GetPriceWithEntryPriceSeries(PortfolioTickers, CandleData, PositionData);
+        public List<List<DiagramSeries>> GetPriceWithEntryPriceSeries() =>
+            Timeframe switch
+            {
+                KnownTimeframes.Day => DiagramSeriesHelper.GetPriceWithEntryPriceSeries(PortfolioTickers, CandleData, PositionData),
+                KnownTimeframes.Week => DiagramSeriesHelper.GetPriceWithEntryPriceSeries(PortfolioTickers, WeekCandleData, PositionData),
+                _ => []
+            };
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Oid85.FinMarket.FollowTrend.Application.Models;
-using Oid85.FinMarket.FollowTrend.Core.Models;
+using Oid85.FinMarket.FollowTrend.Common.KnownConstants;
 using static Oid85.FinMarket.FollowTrend.Common.KnownConstants.KnownTickers;
 
 namespace Oid85.FinMarket.FollowTrend.Application.Strategies
@@ -17,7 +17,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
         public override void InitParameters()
         {
-            Timeframe = "Day";
+            Timeframe = KnownTimeframes.Day;
             Period = 30;
             Multiplier = 2.5;
         }

@@ -3,7 +3,7 @@ using Oid85.FinMarket.FollowTrend.Application.Interfaces.ApiClients;
 using Oid85.FinMarket.FollowTrend.Application.Interfaces.Repositories;
 using Oid85.FinMarket.FollowTrend.Application.Interfaces.Services;
 using Oid85.FinMarket.FollowTrend.Application.Models;
-using Oid85.FinMarket.FollowTrend.Common.Utils;
+using Oid85.FinMarket.FollowTrend.Common.KnownConstants;
 using Oid85.FinMarket.FollowTrend.Core.Models;
 using Oid85.FinMarket.FollowTrend.Core.Requests;
 using Oid85.FinMarket.FollowTrend.Core.Responses;
@@ -46,11 +46,12 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             strategy.SupertrendLowerBandData = await dataService.GetSupertrendLowerBandDataAsync(tickers, strategy.Period, strategy.Multiplier);
 
             strategy.WeekCandleData = await dataService.GetWeekCandleDataAsync(tickers);                               
-            strategy.WeekUltimateSmootherData = await dataService.GetWeekUltimateSmootherDataAsync(tickers, strategy.Period);            
+            strategy.WeekUltimateSmootherData = await dataService.GetWeekUltimateSmootherDataAsync(tickers, strategy.Period);
+            strategy.WeekSupertrendLowerBandData = await dataService.GetWeekSupertrendLowerBandDataAsync(tickers, strategy.Period, strategy.Multiplier);
 
             var instrumentData = await dataService.GetInstrumentDataAsync(tickers);
+
             strategy.PositionData = tickers.ToDictionary(k => k, v => new PositionData { Ticker = v, Weight = 0, Lot = instrumentData[v].Lot ?? 1 });
-            strategy.PositionData.TryAdd(MON, new PositionData { Ticker = MON, Weight = 0, Lot = 1 });
 
             strategy.TotalSumLife = portfolioSettings.MoneySum;
 
@@ -58,8 +59,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             {
                 CandleData = strategy.Timeframe switch
                 {
-                    "Day" => strategy.CandleData,
-                    "Week" => strategy.WeekCandleData,
+                    KnownTimeframes.Day => strategy.CandleData,
+                    KnownTimeframes.Week => strategy.WeekCandleData,
                     _ => []
                 },
                 InstrumentData = instrumentData,

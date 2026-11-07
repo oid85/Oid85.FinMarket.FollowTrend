@@ -1,16 +1,11 @@
-﻿using System.Text.Json;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 using Oid85.FinMarket.FollowTrend.Application.Interfaces.Repositories;
 using Oid85.FinMarket.FollowTrend.Application.Interfaces.Services;
-using Oid85.FinMarket.FollowTrend.Application.Models;
-using Oid85.FinMarket.FollowTrend.Application.Strategies;
 using Oid85.FinMarket.FollowTrend.Common.KnownConstants;
 using Oid85.FinMarket.FollowTrend.Core.Configuration;
 using Oid85.FinMarket.FollowTrend.Core.Models;
 using Oid85.FinMarket.FollowTrend.Core.Requests;
 using Oid85.FinMarket.FollowTrend.Core.Responses;
-using static Oid85.FinMarket.FollowTrend.Application.Mapping.ApplicationMapper;
 
 
 namespace Oid85.FinMarket.FollowTrend.Application.Services
@@ -23,94 +18,9 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
         IServiceProvider serviceProvider) 
         : IBacktestService
     {
-        private readonly List<int> PARAMETER_LIST_PERIOD = [10, 25, 50]; 
-
-        private readonly DateOnly _from = new DateOnly(2021, 1, 1);
-        private readonly DateOnly _to = DateOnly.FromDateTime(DateTime.Today);
-        private List<string> _tickers = [];
-        private Dictionary<string, List<Candle>> _candleData = [];
-        private Dictionary<string, Instrument> _instrumentData = [];
-
         public async Task<BacktestResponse> BacktestAsync(BacktestRequest request)
         {            
-            var followTrendSettings = options.Value;
-
-            _candleData = await dataService.GetCandleDataAsync(_tickers);
-            _instrumentData = await dataService.GetInstrumentDataAsync(_tickers);
-
-            await strategyExecuteResultRepository.DeleteAsync();
-
-            await BacktestByStrategyName(nameof(ShareUltimateSmootherStrategy));
-
             return new ();
-        }
-
-        private async Task BacktestByStrategyName(string strategyName)
-        {
-            var portfolioSettings = await portfolioSettingRepository.GetAsync(strategyName.Replace("Strategy", string.Empty));
-
-            var strategy = serviceProvider.GetRequiredKeyedService<Strategy>(strategyName);
-
-            strategy.Name = strategyName;
-
-            List<int> ParameterListPeriod = PARAMETER_LIST_PERIOD;
-
-            _tickers = portfolioSettings!.Tickers;
-
-            strategy.From = _from;
-            strategy.To = _to;
-
-            strategy.CandleData = _candleData;            
-            strategy.PositionData = _tickers.ToDictionary(k => k, v => new PositionData { Ticker = v, Lot = _instrumentData[v].Lot ?? 1 });
-            strategy.PositionData.TryAdd(KnownTickers.MON, new PositionData { Ticker = KnownTickers.MON, Lot = 1 });
-
-            strategy.TradingProcessor = new TradingProcessor
-            {
-                CandleData = _candleData,
-                InstrumentData = _instrumentData,
-                Tickers = _tickers,
-                StartMoneySum = portfolioSettings.MoneySum
-            };
-
-            foreach (var period in ParameterListPeriod)
-            {
-                var strategyParams =
-                        $"Period = {JsonSerializer.Serialize(period)};"
-                        ;                        
-
-                try
-                {
-                    strategy.Period = period;
-
-                    strategy.StartMoneySum = portfolioSettings.MoneySum;
-
-                    strategy.EquitySeries.Data.Clear();
-                    strategy.DrawdownSeries.Data.Clear();
-                    strategy.MoneySeries.Data.Clear();
-
-                    strategy.TradingProcessor.Reset();
-
-                    strategy.Execute();
-
-                    var strategyExecuteResult = ToStrategyExecuteResult(strategy);
-
-                    strategyExecuteResult.StrategyParams = strategyParams;
-                    strategyExecuteResult.ResultMessage = "OK";
-
-                    await strategyExecuteResultRepository.AddAsync([strategyExecuteResult]);
-                }
-
-                catch (Exception ex)
-                {
-                    var strategyExecuteResult = new StrategyExecuteResult
-                    {
-                        StrategyParams = strategyParams,
-                        ResultMessage = $"Error. {ex.Message}"
-                    };
-
-                    await strategyExecuteResultRepository.AddAsync([strategyExecuteResult]);
-                }
-            }
         }
 
         public async Task<BacktestResultResponse> BacktestResultAsync(BacktestResultRequest request)
