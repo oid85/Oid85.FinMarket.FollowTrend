@@ -23,7 +23,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
     {
         public async Task<MonitorResponse> MonitorVersionAsync(MonitorRequest request)
         {
-            request.FollowTrendVersion = "EtfWeekUltimateSmoother";
+            request.FollowTrendVersion = "EtfWeekSupertrend";
 
             var portfolioSettings = await portfolioSettingRepository.GetAsync(request.FollowTrendVersion);
 
