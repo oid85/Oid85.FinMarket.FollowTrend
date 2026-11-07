@@ -49,6 +49,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             foreach (var ticker in tickers.Distinct())
                 _weekCandleData.Add(ticker, GetWeekCandles(candleData[ticker]));
 
+            _weekCandleData.TryAdd(MON, GetWeekCandles(await GetMoneyEquivalentCandlesAsync()));
+
             return _weekCandleData;
         }
 

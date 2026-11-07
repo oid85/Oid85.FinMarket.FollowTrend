@@ -33,7 +33,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
 
             strategy.InitParameters();
 
-            strategy.StartMoneySum = portfolioSettings.MoneySum;         
+            strategy.StartMoneySum = portfolioSettings.MoneySum;
 
             var from = new DateOnly(2021, 2, 1);
             var to = DateOnly.FromDateTime(DateTime.Today);
@@ -51,7 +51,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
 
             var instrumentData = await dataService.GetInstrumentDataAsync(tickers);
 
-            strategy.PositionData = tickers.ToDictionary(k => k, v => new PositionData { Ticker = v, Weight = 0, Lot = instrumentData[v].Lot ?? 1 });
+            strategy.PositionData = instrumentData.ToDictionary(k => k.Key, v => new PositionData { Ticker = v.Key, Weight = 0, Lot = v.Value.Lot ?? 1 });
 
             strategy.TotalSumLife = portfolioSettings.MoneySum;
 

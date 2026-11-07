@@ -8,7 +8,9 @@ namespace Oid85.FinMarket.FollowTrend.Application.Helpers
     {
         public static double GetYearPercentageYield(DiagramSeries equitySeries, int year)
         {
-            var dataValues = equitySeries.Data.Where(x => x.Date.Year == year);
+            var dataValues = equitySeries.Data.Where(x => x.Date.Year == year).ToList();
+
+            if (dataValues is null or []) return 0.0;
 
             double firstValue = dataValues.First().Value ?? 0.0;
             double lastValue = dataValues.Last().Value ?? 0.0;
@@ -23,7 +25,9 @@ namespace Oid85.FinMarket.FollowTrend.Application.Helpers
             var from = DateOnly.FromDateTime(DateTime.Today).AddDays(-1 * days);
             var to = DateOnly.FromDateTime(DateTime.Today);
 
-            var dataValues = equitySeries.Data.Where(x => x.Date >= from && x.Date <= to);
+            var dataValues = equitySeries.Data.Where(x => x.Date >= from && x.Date <= to).ToList();
+
+            if (dataValues is null or []) return 0.0;
 
             double firstValue = dataValues.First().Value ?? 0.0;
             double lastValue = dataValues.Last().Value ?? 0.0;
