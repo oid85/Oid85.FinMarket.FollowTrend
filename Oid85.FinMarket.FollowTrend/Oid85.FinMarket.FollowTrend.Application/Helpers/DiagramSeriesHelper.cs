@@ -98,9 +98,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Helpers
         {
             var series = new List<DiagramSeries>();
 
-            var from = DateOnly.FromDateTime(DateTime.Today.AddMonths(-1));
-            var to = DateOnly.FromDateTime(DateTime.Today);
-
             List<string> tickers = [
                 .. portfolioTickers.Where(x => x != KnownTickers.MON).OrderBy(x => x),
                 .. portfolioTickers.Where(x => x == KnownTickers.MON)
@@ -108,7 +105,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Helpers
 
             foreach (var ticker in tickers)
             {
-                var candles = candleData[ticker].Where(x => x.Date >= from && x.Date <= to).ToList();
+                var candles = candleData[ticker].TakeLast(30).ToList();
 
                 series.Add(
                     new DiagramSeries
@@ -136,12 +133,9 @@ namespace Oid85.FinMarket.FollowTrend.Application.Helpers
         {
             var priceDynamicSeries = new List<DiagramSeries>();
 
-            var from = DateOnly.FromDateTime(DateTime.Today).AddDays(-1 * period);
-            var to = DateOnly.FromDateTime(DateTime.Today);
-
             foreach (var (ticker, candleList) in candleData.Where(x => x.Key != KnownTickers.MON))
             {
-                var candlesByDates = candleList.Where(x => x.Date >= from && x.Date <= to).ToList();
+                var candlesByDates = candleList.TakeLast(period).ToList();
                 double firstPrice = candlesByDates.First().Close;
 
                 string color = portfolioTickers.Contains(ticker)
@@ -174,11 +168,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Helpers
         {
             var series = new List<List<DiagramSeries>>();
 
-            const int days = 30;
-
-            var from = DateOnly.FromDateTime(DateTime.Today.AddDays(-1 * days));
-            var to = DateOnly.FromDateTime(DateTime.Today);
-
             List<string> tickers = [
                 .. portfolioTickers.Where(x => x != KnownTickers.MON).OrderBy(x => x),
                 .. portfolioTickers.Where(x => x == KnownTickers.MON)
@@ -186,7 +175,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Helpers
 
             foreach (var ticker in tickers)
             {
-                var candles = candleData[ticker].Where(x => x.Date >= from && x.Date <= to).ToList();
+                var candles = candleData[ticker].TakeLast(30).ToList();
                 double entryPrice = positionData[ticker].EntryPrice;
 
                 series.Add([

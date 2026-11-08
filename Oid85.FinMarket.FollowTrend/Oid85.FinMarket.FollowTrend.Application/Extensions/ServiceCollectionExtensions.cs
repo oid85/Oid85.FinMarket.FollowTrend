@@ -16,11 +16,15 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IBacktestService, BacktestService>();
 
         services.AddKeyedTransient<Strategy, ShareUltimateSmootherStrategy>(nameof(ShareUltimateSmootherStrategy));
-        services.AddKeyedTransient<Strategy, EtfUltimateSmootherStrategy>(nameof(EtfUltimateSmootherStrategy));
-        services.AddKeyedTransient<Strategy, EtfWeekUltimateSmootherStrategy>(nameof(EtfWeekUltimateSmootherStrategy));
-        services.AddKeyedTransient<Strategy, FutureUltimateSmootherStrategy>(nameof(FutureUltimateSmootherStrategy));
         services.AddKeyedTransient<Strategy, ShareSupertrendStrategy>(nameof(ShareSupertrendStrategy));
-		services.AddKeyedTransient<Strategy, EtfSupertrendStrategy>(nameof(EtfSupertrendStrategy));
-		services.AddKeyedTransient<Strategy, FutureSupertrendStrategy>(nameof(FutureSupertrendStrategy));
+        services.AddKeyedTransient<Strategy, ShareWeekUltimateSmootherStrategy>(nameof(ShareWeekUltimateSmootherStrategy));
+
+        services.AddKeyedTransient<Strategy, EtfUltimateSmootherStrategy>(nameof(EtfUltimateSmootherStrategy));
+        services.AddKeyedTransient<Strategy, EtfSupertrendStrategy>(nameof(EtfSupertrendStrategy));
+        services.AddKeyedTransient<Strategy, EtfWeekUltimateSmootherStrategy>(nameof(EtfWeekUltimateSmootherStrategy));
+        services.AddKeyedTransient<Strategy, EtfWeekSupertrendStrategy>(nameof(EtfWeekSupertrendStrategy));
+
+        services.AddKeyedTransient<Strategy, FutureUltimateSmootherStrategy>(nameof(FutureUltimateSmootherStrategy));
+        services.AddKeyedTransient<Strategy, FutureSupertrendStrategy>(nameof(FutureSupertrendStrategy));
     }
 }
