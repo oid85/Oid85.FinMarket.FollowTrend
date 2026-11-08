@@ -50,9 +50,20 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
         /// </summary>
         public double EndMoneySum => EquitySeries.Data is [] ? StartMoneySum : EquitySeries.Data.Last().Value ?? StartMoneySum;
 
+        /// <summary>
+        /// Процессор обработки торговых операций
+        /// </summary>
         public TradingProcessor TradingProcessor { get; set; } = new();
 
+        /// <summary>
+        /// Текущий срез позиций
+        /// </summary>
         public Dictionary<string, PositionData> PositionData { get; set; } = [];
+
+        /// <summary>
+        /// История позиций
+        /// </summary>
+        public Dictionary<string, List<PositionData>> PositionDataList { get; set; } = [];
 
         public Dictionary<string, List<Candle>> CandleData { get; set; } = [];
 
@@ -90,12 +101,24 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public double AnnualYieldReturn => EndMoneySum > StartMoneySum ? (TotalReturn / ((To.DayNumber - From.DayNumber) / 365.0)).RoundTo(2) : 0.0;
 
+        /// <summary>
+        /// Все тикеры
+        /// </summary>
         public List<string> Tickers => [.. PositionData.Keys];
 
+        /// <summary>
+        /// Тикеры, у которых есть сигнал на покупку
+        /// </summary>
         public List<string> SignalTickers { get; set; } = [];
 
+        /// <summary>
+        /// ТИкеры портфеля
+        /// </summary>
         public List<string> PortfolioTickers => [.. PositionData.Values.Where(x => x.Weight > 0.0).Select(x => x.Ticker)];
 
+        /// <summary>
+        /// ТИкеры портфеля (без фонда ликвидности)
+        /// </summary>
         public List<string> PortfolioWithoutMonTickers => [.. PositionData.Values.Where(x => x.Ticker != MON).Where(x => x.Weight > 0.0).Select(x => x.Ticker)];
 
         public double WeightSum => PositionData.Values.Sum(x => x.Weight);
@@ -166,8 +189,14 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
             }
         }
 
+        /// <summary>
+        /// Синхронизация позиций
+        /// </summary>
         public void SyncPositions() => TradingProcessor.SyncPositions(PositionData.ToDictionary(k => k.Key, v => v.Value.Weight), true);
 
+        /// <summary>
+        /// Обновление кривой капитала
+        /// </summary>
         public void UpdateEquitySeries() =>
             EquitySeries.Data.Add(
                 new()
@@ -176,6 +205,9 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
                     Value = TradingProcessor.TotalSum.RoundTo(2)
                 });
 
+        /// <summary>
+        /// Обновление кривой фонда ликвидности
+        /// </summary>
         public void UpdateMoneySeries() =>
             MoneySeries.Data.Add(
                 new()
@@ -190,7 +222,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
             if (equityValues.Count == 0) return 0.0;
 
-            double lastEquity = equityValues.Last();
+            double lastEquity = equityValues[^1];
             double maxEquity = equityValues.Max();
 
             if (maxEquity == 0.0) return 0.0;

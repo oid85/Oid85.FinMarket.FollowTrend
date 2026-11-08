@@ -65,7 +65,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
         /// </summary>        
         public void SyncPositions(Dictionary<string, double> weightData, bool openPositionMon = true)
         {
-            // Закрываем позиции
+            // Закрываем все позиции
             ClosePositions();
 
             // Открываем позиции по заданным весам активов
