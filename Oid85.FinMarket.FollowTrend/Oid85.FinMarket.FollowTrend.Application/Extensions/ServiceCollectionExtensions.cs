@@ -18,6 +18,7 @@ public static class ServiceCollectionExtensions
         services.AddKeyedTransient<Strategy, ShareUltimateSmootherStrategy>(nameof(ShareUltimateSmootherStrategy));
         services.AddKeyedTransient<Strategy, ShareSupertrendStrategy>(nameof(ShareSupertrendStrategy));
         services.AddKeyedTransient<Strategy, ShareWeekUltimateSmootherStrategy>(nameof(ShareWeekUltimateSmootherStrategy));
+        services.AddKeyedTransient<Strategy, ShareWeekSupertrendStrategy>(nameof(ShareWeekSupertrendStrategy));
 
         services.AddKeyedTransient<Strategy, EtfUltimateSmootherStrategy>(nameof(EtfUltimateSmootherStrategy));
         services.AddKeyedTransient<Strategy, EtfSupertrendStrategy>(nameof(EtfSupertrendStrategy));
@@ -26,5 +27,7 @@ public static class ServiceCollectionExtensions
 
         services.AddKeyedTransient<Strategy, FutureUltimateSmootherStrategy>(nameof(FutureUltimateSmootherStrategy));
         services.AddKeyedTransient<Strategy, FutureSupertrendStrategy>(nameof(FutureSupertrendStrategy));
+        services.AddKeyedTransient<Strategy, FutureWeekUltimateSmootherStrategy>(nameof(FutureWeekUltimateSmootherStrategy));
+        services.AddKeyedTransient<Strategy, FutureWeekSupertrendStrategy>(nameof(FutureWeekSupertrendStrategy));
     }
 }
