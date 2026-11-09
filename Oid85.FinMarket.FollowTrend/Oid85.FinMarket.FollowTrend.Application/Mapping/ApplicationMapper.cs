@@ -39,13 +39,13 @@ public static class ApplicationMapper
         };
 
     private static List<PositionWeightData> ToPositionWeightData(Dictionary<string, List<TickerWeight>> positionWeightData) =>
-        [.. positionWeightData
-            .TakeLast(30)
+        [.. positionWeightData            
             .Select(x =>
             new PositionWeightData
             {
                 Ticker = x.Key,
                 PositionWeightItems = [.. x.Value
+                    .TakeLast(14)
                     .Select(xx =>
                     new PositionWeightItem
                     {
