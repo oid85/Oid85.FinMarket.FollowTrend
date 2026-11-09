@@ -40,6 +40,7 @@ public static class ApplicationMapper
 
     private static List<PositionWeightData> ToPositionWeightData(Dictionary<string, List<TickerWeight>> positionWeightData) =>
         [.. positionWeightData
+            .TakeLast(30)
             .Select(x =>
             new PositionWeightData
             {
