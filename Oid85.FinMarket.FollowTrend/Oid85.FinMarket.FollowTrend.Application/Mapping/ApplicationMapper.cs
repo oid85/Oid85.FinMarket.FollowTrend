@@ -3,6 +3,7 @@ using Oid85.FinMarket.FollowTrend.Application.Models;
 using Oid85.FinMarket.FollowTrend.Core.Models;
 using Oid85.FinMarket.FollowTrend.Core.Responses;
 using Skender.Stock.Indicators;
+using Oid85.FinMarket.FollowTrend.Common.KnownConstants;
 
 namespace Oid85.FinMarket.FollowTrend.Application.Mapping;
 
@@ -11,6 +12,7 @@ public static class ApplicationMapper
     public static MonitorResponse ToMonitorResponse(Strategy strategy) => 
         new ()
         {
+            Tickers = strategy.Tickers,
             Description = strategy.GetDescription(),
             Messages = [.. strategy.Messages.OrderByDescending(x => x.Date)],
             TotalSumLife = strategy.TotalSumLife,
@@ -32,8 +34,26 @@ public static class ApplicationMapper
             YieldMonth = DiagramSeriesHelper.GetPercentageYield(strategy.EquitySeries, 30),
             YieldWeek = DiagramSeriesHelper.GetPercentageYield(strategy.EquitySeries, 7),
             MaxDrawdownPercent = strategy.MaxDrawdownPercent,
-            CurrentDrawdownPercent = strategy.GetCurrentDrawdown()
+            CurrentDrawdownPercent = strategy.GetCurrentDrawdown(),
+            PositionWeightData = ToPositionWeightData(strategy.PositionWeightData)
         };
+
+    private static List<PositionWeightData> ToPositionWeightData(Dictionary<string, List<TickerWeight>> positionWeightData) =>
+        [.. positionWeightData
+            .Select(x =>
+            new PositionWeightData
+            {
+                Ticker = x.Key,
+                PositionWeightItems = [.. x.Value
+                    .Select(xx =>
+                    new PositionWeightItem
+                    {
+                        Weight = Convert.ToInt32(xx.Weight),
+                        ColorFill = xx.Weight > 0.0 
+                            ? KnownColors.Green 
+                            : KnownColors.White
+                    })]
+            })];
 
     public static StrategyExecuteResult ToStrategyExecuteResult(Strategy strategy) =>
         new()

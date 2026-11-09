@@ -4,6 +4,7 @@ namespace Oid85.FinMarket.FollowTrend.Core.Responses
 {
     public class MonitorResponse
     {
+        public List<string> Tickers { get; set; } = [];
         public List<string> Description { get; set; } = [];
         public List<DiagramSeries> BacktestSeries { get; set; } = [];
         public List<DiagramSeries> ShortBacktestSeries { get; set; } = [];
@@ -26,5 +27,18 @@ namespace Oid85.FinMarket.FollowTrend.Core.Responses
         public double MaxDrawdownPercent { get; set; }
         public double CurrentDrawdownPercent { get; set; }
         public double TotalSumLife { get; set; }
+        public List<PositionWeightData> PositionWeightData { get; set; } = [];
+    }
+
+    public class PositionWeightData
+    {
+        public string Ticker { get; set; } = string.Empty;
+        public List<PositionWeightItem> PositionWeightItems { get; set; } = [];
+    }
+
+    public class PositionWeightItem
+    {
+        public string ColorFill { get; set; } = "#FFFFFF";
+        public int? Weight { get; set; } = null;
     }
 }

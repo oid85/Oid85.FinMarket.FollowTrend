@@ -63,7 +63,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
         /// <summary>
         /// История позиций
         /// </summary>
-        public Dictionary<string, List<PositionData>> PositionDataList { get; set; } = [];
+        public Dictionary<string, List<TickerWeight>> PositionWeightData { get; set; } = [];
 
         public Dictionary<string, List<Candle>> CandleData { get; set; } = [];
 
@@ -153,6 +153,14 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
             Tickers.ForEach(ticker => PositionData[ticker].Weight = 0.0);
             SignalTickers.ForEach(ticker => PositionData[ticker].Weight = 1.0);
             PositionData[MON].Weight = Tickers.Count - SignalTickers.Count(x => x != MON);
+
+            foreach (var (ticker, positionData) in PositionData)
+            {
+                if (!PositionWeightData.ContainsKey(ticker))
+                    PositionWeightData.Add(ticker, []);
+
+                PositionWeightData[ticker].Add(new TickerWeight { Ticker = ticker, Weight = positionData.Weight});
+            }
         }
 
         public void UpdatePrices() => TradingProcessor.UpdatePrices();
