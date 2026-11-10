@@ -19,6 +19,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
         {
             Timeframe = KnownTimeframes.Day;
             Period = 30;
+            Leverage = 2.0;
         }
 
         public override void SetSignalTickers() => SignalTickers = [.. GetSignalTickers(CurrentDate.AddDays(-1)), MON];

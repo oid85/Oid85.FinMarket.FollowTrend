@@ -21,6 +21,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 
         public List<int> RebalanceDays { get; set; } = [1, 11, 21];
 
+        public double Leverage { get; set; } = 1.0;
+
         #endregion
 
         public virtual string Name { get; set; } = string.Empty;

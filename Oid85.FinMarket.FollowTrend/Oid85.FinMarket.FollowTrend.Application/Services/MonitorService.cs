@@ -63,7 +63,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
                 },
                 InstrumentData = instrumentData,
                 Tickers = tickers,
-                StartMoneySum = portfolioSettings.MoneySum
+                StartMoneySum = portfolioSettings.MoneySum,
+                Leverage = strategy.Leverage
             };
 
             strategy.TradingProcessor.Reset();

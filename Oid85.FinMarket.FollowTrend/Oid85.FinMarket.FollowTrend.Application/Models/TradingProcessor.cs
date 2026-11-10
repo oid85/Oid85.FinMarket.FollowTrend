@@ -5,6 +5,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
 {
     public class TradingProcessor
     {
+        public double Leverage { get; set; } = 1.0;
+
         public DateOnly CurrentDate { get; set; } = DateOnly.MinValue;
         
         public double StartMoneySum { get; set; } = 0.0;
