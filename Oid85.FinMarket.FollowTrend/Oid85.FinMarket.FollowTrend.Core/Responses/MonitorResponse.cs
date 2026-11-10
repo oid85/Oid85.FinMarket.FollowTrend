@@ -1,4 +1,5 @@
-﻿using Oid85.FinMarket.FollowTrend.Core.Models;
+﻿using Oid85.FinMarket.FollowTrend.Common.KnownConstants;
+using Oid85.FinMarket.FollowTrend.Core.Models;
 
 namespace Oid85.FinMarket.FollowTrend.Core.Responses
 {
@@ -39,7 +40,7 @@ namespace Oid85.FinMarket.FollowTrend.Core.Responses
     public class PositionWeightItem
     {
         public string Date { get; set; } = string.Empty;
-        public string ColorFill { get; set; } = "#FFFFFF";
+        public string ColorFill { get; set; } = KnownColors.White;
         public int? Weight { get; set; } = null;
     }
 }
