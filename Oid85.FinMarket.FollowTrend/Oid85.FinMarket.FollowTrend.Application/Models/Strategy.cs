@@ -161,7 +161,13 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
                 if (!PositionWeightData.ContainsKey(ticker))
                     PositionWeightData.Add(ticker, []);
 
-                PositionWeightData[ticker].Add(new TickerWeight { Ticker = ticker, Weight = positionData.Weight});
+                PositionWeightData[ticker].Add(
+                    new TickerWeight 
+                    { 
+                        Date = CurrentDate,
+                        Ticker = ticker, 
+                        Weight = positionData.Weight
+                    });
             }
         }
 

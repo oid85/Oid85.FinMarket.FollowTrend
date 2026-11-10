@@ -25,8 +25,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
         public override void Execute()
         {
-            CountTickers = Convert.ToInt32(Math.Truncate(Tickers.Count * 0.618));
-
             foreach (var date in Dates)
             {
                 CurrentDate = date;
@@ -57,7 +55,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
                 .ToDictionary(k => k.Key, v => GetSignalDelta([.. v.Value.Where(x => x.Date >= from && x.Date <= to)]))
                 .Where(x => x.Value.Signal == true)
                 .OrderByDescending(x => x.Value.Delta)
-                .Take(CountTickers)
                 .Select(x => x.Key)
                 .ToList();
 

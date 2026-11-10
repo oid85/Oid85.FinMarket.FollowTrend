@@ -49,6 +49,7 @@ public static class ApplicationMapper
                     .Select(xx =>
                     new PositionWeightItem
                     {
+                        Date = xx.Date.ToLongDateString(),
                         Weight = Convert.ToInt32(xx.Weight),
                         ColorFill = xx.Weight > 0.0 
                             ? KnownColors.Green 

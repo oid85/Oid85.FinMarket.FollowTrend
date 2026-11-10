@@ -26,8 +26,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
         public override void Execute()
         {
-            CountTickers = Convert.ToInt32(Math.Truncate(Tickers.Count * 0.618));
-
             foreach (var date in Dates)
             {
                 CurrentDate = date;
@@ -60,7 +58,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
                     tickers.Add(ticker);
             }
 
-            return [.. tickers.Take(CountTickers)];
+            return tickers;
         }
     }
 }

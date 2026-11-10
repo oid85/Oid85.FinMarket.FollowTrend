@@ -38,6 +38,7 @@ namespace Oid85.FinMarket.FollowTrend.Core.Responses
 
     public class PositionWeightItem
     {
+        public string Date { get; set; } = string.Empty;
         public string ColorFill { get; set; } = "#FFFFFF";
         public int? Weight { get; set; } = null;
     }

@@ -25,8 +25,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
         public override void Execute()
         {
-            CountTickers = Convert.ToInt32(Math.Truncate(Tickers.Count * 0.618));
-
             foreach (var week in Weeks)
             {
                 CurrentDate = week.StartDate;
@@ -58,7 +56,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
                     k => k.Key,
                     v => GetSignal([.. v.Value.Where(x => x.Date >= from && x.Date <= to)]))
                 .Where(x => x.Value == true)
-                .Take(CountTickers)
                 .Select(x => x.Key)
                 .ToList();
 
