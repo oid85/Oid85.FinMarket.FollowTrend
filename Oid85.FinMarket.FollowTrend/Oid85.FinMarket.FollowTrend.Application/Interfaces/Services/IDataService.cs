@@ -6,12 +6,10 @@ namespace Oid85.FinMarket.FollowTrend.Application.Interfaces.Services
     {
         Task<Dictionary<string, List<Candle>>> GetCandleDataAsync(List<string> tickers);
         Task<Dictionary<string, List<DateValue<double>>>> GetUltimateSmootherDataAsync(List<string> tickers, int period);
-        Task<Dictionary<string, List<DateValue<double?>>>> GetSupertrendLowerBandDataAsync(List<string> tickers, int period, double multiplier);
 
         Task<Dictionary<string, List<Candle>>> GetWeekCandleDataAsync(List<string> tickers);        
         Task<Dictionary<string, List<DateValue<double>>>> GetWeekUltimateSmootherDataAsync(List<string> tickers, int period);
-        Task<Dictionary<string, List<DateValue<double?>>>> GetWeekSupertrendLowerBandDataAsync(List<string> tickers, int period, double multiplier);
-        
+
         Task<Dictionary<string, Instrument>> GetInstrumentDataAsync(List<string> tickers);
     }
 }

@@ -14,11 +14,9 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
     {
         private Dictionary<string, List<Candle>>? _candleData = null;
         private Dictionary<string, List<DateValue<double>>>? _ultimateSmootherData = null;
-        private Dictionary<string, List<DateValue<double?>>>? _supertrendLowerBandData = null;
 
         private Dictionary<string, List<Candle>>? _weekCandleData = null;        
         private Dictionary<string, List<DateValue<double>>>? _weekUltimateSmootherData = null;
-        private Dictionary<string, List<DateValue<double?>>>? _weekSupertrendLowerBandData = null;
 
         private Dictionary<string, Instrument>? _instrumentData = null;
 
@@ -82,54 +80,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
                 _weekUltimateSmootherData.Add(ticker, GetUltimateSmootherValues(candleData[ticker], period));
 
             return _weekUltimateSmootherData;
-        }
-
-        public async Task<Dictionary<string, List<DateValue<double?>>>> GetSupertrendLowerBandDataAsync(List<string> tickers, int period, double multiplier)
-        {
-            if (_supertrendLowerBandData is not null)
-                return _supertrendLowerBandData;
-
-            _supertrendLowerBandData = [];
-
-            var candleData = await GetCandleDataAsync(tickers);
-
-            foreach (var ticker in tickers.Distinct())
-                _supertrendLowerBandData.Add(
-                    ticker,
-                    [.. candleData[ticker]
-                    .Select(ApplicationMapper.Map)
-                    .GetSuperTrend(period, multiplier)
-                    .Select(x => new DateValue<double?>
-                    {
-                        Date = DateOnly.FromDateTime(x.Date),
-                        Value = x.LowerBand.HasValue ? Convert.ToDouble(x.LowerBand.Value) : null
-                    })]);
-
-            return _supertrendLowerBandData;
-        }
-
-        public async Task<Dictionary<string, List<DateValue<double?>>>> GetWeekSupertrendLowerBandDataAsync(List<string> tickers, int period, double multiplier)
-        {
-            if (_weekSupertrendLowerBandData is not null)
-                return _weekSupertrendLowerBandData;
-
-            _weekSupertrendLowerBandData = [];
-
-            var candleData = await GetWeekCandleDataAsync(tickers);
-
-            foreach (var ticker in tickers.Distinct())
-                _weekSupertrendLowerBandData.Add(
-                    ticker,
-                    [.. candleData[ticker]
-                    .Select(ApplicationMapper.Map)
-                    .GetSuperTrend(period, multiplier)
-                    .Select(x => new DateValue<double?>
-                    {
-                        Date = DateOnly.FromDateTime(x.Date),
-                        Value = x.LowerBand.HasValue ? Convert.ToDouble(x.LowerBand.Value) : null
-                    })]);
-
-            return _weekSupertrendLowerBandData;
         }
 
         public async Task<Dictionary<string, Instrument>> GetInstrumentDataAsync(List<string> tickers)

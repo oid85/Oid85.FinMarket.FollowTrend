@@ -42,12 +42,10 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
             strategy.To = to;
             
             strategy.CandleData = await dataService.GetCandleDataAsync(tickers);
-            strategy.UltimateSmootherData = await dataService.GetUltimateSmootherDataAsync(tickers, strategy.Period);
-            strategy.SupertrendLowerBandData = await dataService.GetSupertrendLowerBandDataAsync(tickers, strategy.Period, strategy.Multiplier);
+            strategy.UltimateSmootherData = await dataService.GetUltimateSmootherDataAsync(tickers, strategy.Period);            
 
             strategy.WeekCandleData = await dataService.GetWeekCandleDataAsync(tickers);                               
-            strategy.WeekUltimateSmootherData = await dataService.GetWeekUltimateSmootherDataAsync(tickers, strategy.Period);
-            strategy.WeekSupertrendLowerBandData = await dataService.GetWeekSupertrendLowerBandDataAsync(tickers, strategy.Period, strategy.Multiplier);
+            strategy.WeekUltimateSmootherData = await dataService.GetWeekUltimateSmootherDataAsync(tickers, strategy.Period);            
 
             var instrumentData = await dataService.GetInstrumentDataAsync(tickers);
 
