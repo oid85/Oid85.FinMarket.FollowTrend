@@ -92,10 +92,21 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
         {
             foreach (var (ticker, _) in BalanceData.Where(x => x.Key != RUB).ToDictionary())
             {
-                // Расчет профита
+                // Расчет профита позиции
                 BalanceData[ticker].Profit = BalanceData[ticker].EntryPrice.HasValue 
                     ? (BalanceData[ticker].Price - BalanceData[ticker].EntryPrice!.Value) * BalanceData[ticker].Size
                     : 0.0;
+
+                if (ticker != MON)
+                    BalanceData[ticker].Profit *= Leverage;
+
+                // Расчет стоимости входа в позицию
+                double entryCost = BalanceData[ticker].EntryPrice.HasValue
+                    ? BalanceData[ticker].EntryPrice!.Value * BalanceData[ticker].Size 
+                    : 0.0;
+
+                // Расчет результирующей стоимости
+                double cost = entryCost + BalanceData[ticker].Profit;
 
                 // Обнуляем цену входа в позицию
                 BalanceData[ticker].EntryPrice = null;
