@@ -213,7 +213,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
         /// <summary>
         /// Обновление кривой капитала
         /// </summary>
-        public void UpdateEquitySeries() =>
+        public void UpdateEquity() =>
             EquitySeries.Data.Add(
                 new()
                 {
@@ -224,7 +224,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
         /// <summary>
         /// Обновление кривой фонда ликвидности
         /// </summary>
-        public void UpdateMoneySeries() =>
+        public void UpdateMoney() =>
             MoneySeries.Data.Add(
                 new()
                 {

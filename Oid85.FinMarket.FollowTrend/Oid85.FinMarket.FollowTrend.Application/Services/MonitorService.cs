@@ -23,6 +23,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Services
     {
         public async Task<MonitorResponse> MonitorVersionAsync(MonitorRequest request)
         {
+            request.FollowTrendVersion = "FutureWeekUltimateSmoother";
+
             var portfolioSettings = await portfolioSettingRepository.GetAsync(request.FollowTrendVersion);
 
             var tickers = portfolioSettings!.Tickers;

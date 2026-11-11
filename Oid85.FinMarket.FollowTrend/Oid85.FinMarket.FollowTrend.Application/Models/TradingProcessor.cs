@@ -1,4 +1,6 @@
-﻿using Oid85.FinMarket.FollowTrend.Core.Models;
+﻿using System.Drawing;
+using System.Timers;
+using Oid85.FinMarket.FollowTrend.Core.Models;
 using static Oid85.FinMarket.FollowTrend.Common.KnownConstants.KnownTickers;
 
 namespace Oid85.FinMarket.FollowTrend.Application.Models
@@ -32,37 +34,6 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
         }
 
         /// <summary>
-        /// Закрыть позиции по активам
-        /// </summary>
-        public void ClosePositions()
-        {
-            foreach (var (ticker, _) in BalanceData.Where(x => x.Key != RUB).ToDictionary())
-            {
-                // Переводим деньги от продажи актива в рубли
-                BalanceData[RUB].Size += BalanceData[ticker].Cost;
-
-                // Обнуляем позицию по активу
-                BalanceData[ticker].Size = 0.0;
-            }
-        }
-
-        /// <summary>
-        /// Закрыть позицию по тикеру
-        /// </summary>
-        public void ClosePosition(string ticker, bool openPositionMon = true)
-        {
-            // Начисляем деньги от продажи актива
-            BalanceData[RUB].Size += BalanceData[ticker].Cost;
-
-            // Обнуляем позицию по активу
-            BalanceData[ticker].Size = 0.0;
-
-            // Закупаем на остатки фонд ликвидности
-            if (openPositionMon)
-                OpenPositionMon();
-        }
-
-        /// <summary>
         /// Синхронизировать позиции в портфеле по заданным весам активов
         /// </summary>        
         public void SyncPositions(Dictionary<string, double> weightData, bool openPositionMon = true)
@@ -89,7 +60,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
             {
                 double share = weightData[ticker] / weightSum;
                 OpenPositionByShare(ticker, share);
-            }
+            }            
         }
 
         /// <summary>
@@ -104,11 +75,37 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
             double size = Math.Truncate(cost / price / lot) * lot;
             double realCost = size * price;
 
+            // Запоминаем цену входа в позицию
+            BalanceData[ticker].EntryPrice = price;
+
             // Увеличиваем позицию актива
             BalanceData[ticker].Size += size;
 
             // Списываем деньги
             BalanceData[RUB].Size -= realCost;
+        }
+
+        /// <summary>
+        /// Закрыть позиции по активам
+        /// </summary>
+        public void ClosePositions()
+        {
+            foreach (var (ticker, _) in BalanceData.Where(x => x.Key != RUB).ToDictionary())
+            {
+                // Расчет профита
+                BalanceData[ticker].Profit = BalanceData[ticker].EntryPrice.HasValue 
+                    ? (BalanceData[ticker].Price - BalanceData[ticker].EntryPrice!.Value) * BalanceData[ticker].Size
+                    : 0.0;
+
+                // Обнуляем цену входа в позицию
+                BalanceData[ticker].EntryPrice = null;
+
+                // Переводим деньги от продажи актива в рубли
+                BalanceData[RUB].Size += BalanceData[ticker].Cost;
+
+                // Обнуляем позицию по активу
+                BalanceData[ticker].Size = 0.0;
+            }
         }
 
         /// <summary>
@@ -121,6 +118,9 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
             double price = BalanceData[MON].Price;
             double size = Math.Truncate(cost / price);
             double realCost = size * price;
+
+            // Запоминаем цену входа в позицию
+            BalanceData[MON].EntryPrice = BalanceData[MON].Price;
 
             // Увеличиваем позицию актива
             BalanceData[MON].Size += size;

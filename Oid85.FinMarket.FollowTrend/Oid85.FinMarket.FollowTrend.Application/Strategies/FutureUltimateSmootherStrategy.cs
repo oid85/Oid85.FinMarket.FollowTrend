@@ -39,8 +39,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
                 SetWeights();
                 SyncPositions();
 
-                UpdateEquitySeries();
-                UpdateMoneySeries();
+                UpdateEquity();
+                UpdateMoney();
             }
         }
 
