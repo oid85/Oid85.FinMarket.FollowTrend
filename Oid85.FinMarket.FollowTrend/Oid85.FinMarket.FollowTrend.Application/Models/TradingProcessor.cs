@@ -112,7 +112,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
                 BalanceData[ticker].EntryPrice = null;
 
                 // Переводим деньги от продажи актива в рубли
-                BalanceData[RUB].Size += BalanceData[ticker].Cost;
+                BalanceData[RUB].Size += cost;
 
                 // Обнуляем позицию по активу
                 BalanceData[ticker].Size = 0.0;

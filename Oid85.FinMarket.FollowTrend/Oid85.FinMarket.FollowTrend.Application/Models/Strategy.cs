@@ -256,6 +256,10 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
                 };
 
                 double tickerCost = TotalSumLife / WeightSum * PositionData[ticker].Weight.RoundTo(2);
+
+                if (ticker != MON)
+                    tickerCost *= Leverage;
+
                 int tickerSize = Convert.ToInt32(Math.Truncate(tickerCost / candle!.Close / PositionData[ticker].Lot) * PositionData[ticker].Lot);
                 double entryPrice = ticker == MON ? 0.0 : PositionData[ticker].EntryPrice;
                 double profitPercent = ticker == MON ? 0.0 : PositionData[ticker].ProfitPercent;
@@ -265,6 +269,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Models
                     {
                         Ticker = ticker,
                         Weight = PositionData[ticker].Weight,
+                        Lot = PositionData[ticker].Lot,
                         Size = tickerSize,
                         Cost = tickerCost,
                         EntryPrice = entryPrice,

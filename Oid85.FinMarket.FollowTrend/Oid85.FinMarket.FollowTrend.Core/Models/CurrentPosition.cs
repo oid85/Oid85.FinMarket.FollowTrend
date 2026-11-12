@@ -5,6 +5,7 @@
         public int Number { get; set; }
         public string Ticker { get; set; } = string.Empty;
         public double Weight { get; set; }
+        public int Lot { get; set; }
         public int Size { get; set; }
         public double Cost { get; set; }
         public double EntryPrice { get; set; }
