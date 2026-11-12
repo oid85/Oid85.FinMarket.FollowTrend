@@ -65,6 +65,7 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
 
         public static bool GetSignal(List<DateValue<double>> values) => 
             values.Count >= 5 &&
-            values[^2].Value < values[^1].Value;
+            values[^2].Value < values[^1].Value &&
+            values[^3].Value < values[^2].Value;
     }
 }
