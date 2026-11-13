@@ -11,7 +11,8 @@ namespace Oid85.FinMarket.FollowTrend.Application.Strategies
         {
             return [
                 "FutureWeekUltimateSmoother",
-                $"Период: {Period} недель"
+                $"Период: {Period} недель",
+                $"Плечо: {Leverage}"
             ];
         }
 
